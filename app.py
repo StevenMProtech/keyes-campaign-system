@@ -557,7 +557,24 @@ def submit_form():
     <script>
         let zoomLevel = 100;
         function updateZoom() {
-            document.getElementById('content').style.transform = `scale(${zoomLevel / 100})`;
+            document.getElementById('content').style.transform = `scale(${{zoomLevel / 100}})`;
+            document.getElementById('zoomLevel').textContent = zoomLevel + '%';
+        }}
+        function zoomIn() {{
+            if (zoomLevel < 150) {{
+                zoomLevel += 10;
+                updateZoom();
+            }}
+        }}
+        function zoomOut() {{
+            if (zoomLevel > 50) {{
+                zoomLevel -= 10;
+                updateZoom();
+            }}
+        }}
+    </script>
+</body>
+</html>"""
 
 @app.route('/template/edit', methods=['GET', 'POST'])
 def edit_template():
@@ -710,24 +727,6 @@ def edit_template():
 </body>
 </html>
 """
-
-            document.getElementById('zoomLevel').textContent = zoomLevel + '%';
-        }
-        function zoomIn() {
-            if (zoomLevel < 150) {
-                zoomLevel += 10;
-                updateZoom();
-            }
-        }
-        function zoomOut() {
-            if (zoomLevel > 50) {
-                zoomLevel -= 10;
-                updateZoom();
-            }
-        }
-    </script>
-</body>
-</html>"""
 
 @app.route('/submissions')
 def view_submissions():
