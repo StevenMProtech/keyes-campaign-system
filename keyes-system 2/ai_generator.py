@@ -7,7 +7,8 @@ from openai import OpenAI
 import json
 import os
 
-client = OpenAI()
+# Initialize OpenAI client - it will automatically use OPENAI_API_KEY from environment
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # All 25 Harry Dry Principles
 HARRY_DRY_PRINCIPLES = """
