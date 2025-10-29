@@ -3308,6 +3308,35 @@ def past_clients():
 """
 
 
+
+@app.route('/admin/fix-segment-ids')
+def fix_segment_ids():
+    """One-time migration to fix segment IDs in past_clients.json"""
+    import json
+    import uuid
+    
+    try:
+        with open('past_clients.json', 'r') as f:
+            segments = json.load(f)
+        
+        fixed_count = 0
+        for seg in segments:
+            # If ID looks like a name (has spaces or is too long), generate a new one
+            if ' ' in seg.get('id', '') or len(seg.get('id', '')) > 20:
+                old_id = seg['id']
+                seg['id'] = str(uuid.uuid4())[:8]
+                fixed_count += 1
+                print(f"Fixed: {old_id} -> {seg['id']}")
+        
+        # Save back
+        with open('past_clients.json', 'w') as f:
+            json.dump(segments, f, indent=2)
+        
+        return f'<script>alert("Fixed {fixed_count} segment IDs!"); window.location.href="/audiences/past-clients";</script>'
+    
+    except Exception as e:
+        return f'<script>alert("Error: {str(e)}"); window.history.back();</script>'
+
 @app.route('/audiences/past-clients/new', methods=['GET', 'POST'])
 def create_past_client_segment():
     """Create a new past client segment"""
