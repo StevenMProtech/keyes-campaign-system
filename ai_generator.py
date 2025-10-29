@@ -211,16 +211,47 @@ def generate_campaign_content(segment_id, campaign_name="", custom_prompt=""):
                 count = audience.get('count', 0)
                 description = audience.get('segment_summary', audience.get('description', ''))
                 
-                # Generate demographics from formula
+                # Build rich demographics from analytics
                 demographics = f"Segment size: {count:,} homeowners. "
-                if 'Age' in formula or 'AGE' in formula:
+                
+                # Add age insights if available
+                if 'median_age' in audience:
+                    demographics += f"Median age: {audience['median_age']}. "
+                if 'age_distribution' in audience:
+                    age_dist = audience['age_distribution']
+                    # Find dominant age group
+                    dominant_age = max(age_dist, key=age_dist.get)
+                    if age_dist[dominant_age] > count * 0.3:  # If >30% in one group
+                        demographics += f"Primarily {dominant_age} years old. "
+                
+                # Add equity insights if available
+                if 'median_equity' in audience:
+                    median_eq = audience['median_equity']
+                    demographics += f"Median equity: ${median_eq:,}. "
+                if 'equity_distribution' in audience:
+                    equity_dist = audience['equity_distribution']
+                    # Find dominant equity range
+                    dominant_equity = max(equity_dist, key=equity_dist.get)
+                    if equity_dist[dominant_equity] > count * 0.3:
+                        demographics += f"Most have {dominant_equity} in equity. "
+                
+                # Add home value if available
+                if 'median_home_value' in audience:
+                    demographics += f"Median home value: ${audience['median_home_value']:,}. "
+                
+                # Add length of residence if available
+                if 'median_length_of_residence' in audience:
+                    demographics += f"Median ownership: {audience['median_length_of_residence']} years. "
+                
+                # Fallback to formula-based hints if no analytics
+                if 'median_age' not in audience and ('Age' in formula or 'AGE' in formula):
                     demographics += "Age-based targeting. "
-                if 'Equity' in formula or 'EQUITY' in formula:
+                if 'median_equity' not in audience and ('Equity' in formula or 'EQUITY' in formula):
                     demographics += "Equity-focused homeowners. "
                 
                 profile = {
                     "name": audience.get('audience_name', audience.get('name', 'Custom Audience')),
-                    "demographics": demographics or 'Custom segment',
+                    "demographics": demographics.strip(),
                     "psychographics": description,
                     "pain_points": [description, "Uncertain about home equity value"],
                     "motivations": ["Maximize home value", "Expert guidance"],
