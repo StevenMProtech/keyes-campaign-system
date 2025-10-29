@@ -3,14 +3,9 @@ AI Campaign Generator for Keyes Real Estate
 Applies all 25 Harry Dry copywriting principles to generate segment-specific campaigns
 """
 
-from openai import OpenAI
 import json
 import os
-
-# Initialize OpenAI client with explicit API key
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
-)
+import requests
 
 # All 25 Harry Dry Principles
 HARRY_DRY_PRINCIPLES = """
@@ -186,7 +181,7 @@ Seven Gables | $2.28B sold | Since 1976
 def generate_campaign_content(segment_id, campaign_name="", custom_prompt=""):
     """
     Generate complete campaign content for a specific segment
-    using all Harry Dry principles
+    using all Harry Dry principles - uses direct API calls instead of OpenAI client
     
     Args:
         segment_id: The segment to target
@@ -198,11 +193,6 @@ def generate_campaign_content(segment_id, campaign_name="", custom_prompt=""):
         return {"error": "Invalid segment ID"}
     
     profile = SEGMENT_PROFILES[segment_id]
-    
-    # Add custom prompt if provided
-    custom_instructions = ""
-    if custom_prompt:
-        custom_instructions = f"\n\n**CRITICAL: CUSTOM INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{custom_prompt}\n\nYou MUST follow these custom instructions exactly. They override the default segment profile where there's a conflict. Still apply Harry Dry's principles, but adapt the copy to match these specific instructions.\n"
     
     # Build comprehensive prompt with custom instructions at the very top
     prompt_intro = "You are an expert copywriter for Keyes Real Estate (49 years in business, $2.28B sold since 1976).\n\n"
@@ -276,82 +266,184 @@ Generate campaign content in this EXACT JSON format:
       ]
     }},
     {{
-      "question": "When are you thinking about this?",
-      "subtitle": "No pressure — just helps us help you",
+      "question": "When are you thinking of making a move?",
+      "subtitle": "This helps us prioritize your plan",
       "type": "radio",
       "options": [
-        {{"label": "Option 1", "description": "Brief description"}},
-        {{"label": "Option 2", "description": "Brief description"}},
-        {{"label": "Option 3", "description": "Brief description"}},
-        {{"label": "Option 4", "description": "Brief description"}}
+        {{"label": "Within 3 months", "description": ""}},
+        {{"label": "3-6 months", "description": ""}},
+        {{"label": "6-12 months", "description": ""}},
+        {{"label": "Just exploring", "description": ""}}
       ]
     }}
   ],
-  "why_section": {{
-    "title": "Why we get better results:",
-    "points": [
-      "Point 1 with specific benefit",
-      "Point 2 with specific benefit",
-      "Point 3 with specific benefit"
-    ]
+  "proof_points": [
+    {{
+      "icon": "🏆",
+      "title": "Proof point title",
+      "description": "Brief explanation of competitive advantage"
+    }},
+    {{
+      "icon": "🌍",
+      "title": "Proof point title",
+      "description": "Brief explanation of competitive advantage"
+    }},
+    {{
+      "icon": "🤝",
+      "title": "Proof point title",
+      "description": "Brief explanation of competitive advantage"
+    }}
+  ],
+  "testimonial": {{
+    "quote": "Authentic client quote (conversational, specific, emotional)",
+    "attribution": "Client description (e.g., 'Client since 2005' or 'Sold 3 properties with us')"
   }},
-  "testimonial": "One sentence testimonial from real client",
-  "explanation": "2-3 paragraphs explaining: (1) Why this copy works for this segment, (2) Which Harry Dry principles were applied and how, (3) What makes this different from generic real estate copy"
+  "footer_tagline": "Keyes Real Estate | $2.28B sold | Since 1976"
 }}
 
-IMPORTANT:
-- Use HubSpot merge tags: {{{{contact.firstname}}}}, {{{{contact.lastname}}}}, {{{{contact.email}}}}
-- Make it sound like it's from a real person, not a company
-- Every line must earn its space
-- Read-aloud test quality
-- Show transformation, not process
-- Don't make them think - use clear presets
-- Warm CTA with reassurance
-- Specific numbers and benefits for this segment
-- Tell THEIR story, not yours
-"""
+CRITICAL REQUIREMENTS:
+- Body copy MUST be 2 sentences maximum, under 40 words total
+- Use contractions (we'll, you've, it's) throughout
+- Personal pronouns (you, your, we) in every section
+- No adjectives unless absolutely necessary
+- Conversational tone - read it aloud test
+- Questions should segment the audience (principle #3)
+- CTA must have warmth (face, name, reassurance - principle #1)
+- Wrap important numbers/phrases in body_copy with <strong style='color: #004237;'>text</strong>
+- Make it feel personal, not corporate
+- Tell their story, don't sell at them
+
+Return ONLY valid JSON, no markdown formatting, no code blocks."""
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert copywriter who specializes in applying Harry Dry's principles to real estate marketing. You generate conversion-focused, segment-specific email campaigns."},
+        # Get API key from environment
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment variables")
+        
+        # Make direct API call using requests
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": "gpt-4o",
+            "messages": [
+                {"role": "system", "content": "You are an expert copywriter who applies Harry Dry's principles to create high-converting email campaigns. You always return valid JSON."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.8,
-            response_format={"type": "json_object"}
+            "temperature": 0.8,
+            "max_tokens": 2000
+        }
+        
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=data,
+            timeout=30
         )
         
-        content = json.loads(response.choices[0].message.content)
-        return content
+        response.raise_for_status()
+        result = response.json()
+        
+        # Extract and parse the response
+        content = result['choices'][0]['message']['content'].strip()
+        
+        # Remove markdown code blocks if present
+        if content.startswith("```json"):
+            content = content[7:]
+        if content.startswith("```"):
+            content = content[3:]
+        if content.endswith("```"):
+            content = content[:-3]
+        content = content.strip()
+        
+        # Parse JSON
+        campaign_data = json.loads(content)
+        
+        return campaign_data
         
     except Exception as e:
-        return {"error": str(e)}
-
-
-def get_segment_profile(segment_id):
-    """Get detailed profile for a segment (static or behavioral)"""
-    # Check static segments first
-    if segment_id in SEGMENT_PROFILES:
-        return SEGMENT_PROFILES[segment_id]
-    
-    # Check behavioral audiences
-    try:
-        import json
-        with open('data/audiences.json', 'r') as f:
-            audiences = json.load(f)
-        
-        for aud in audiences:
-            if aud['id'] == segment_id:
-                # Convert behavioral audience to segment profile format
-                return {
-                    "name": aud['audience_name'],
-                    "demographics": aud.get('demographics', 'Custom behavioral audience'),
-                    "psychographics": aud.get('psychographics', aud.get('segment_summary', '')),
-                    "communication_style": aud.get('communication_style', 'Personalized based on behavior')
+        # Return fallback campaign if API fails
+        return {
+            "error": f"Failed to generate campaign: {str(e)}",
+            "campaign_name": campaign_name or f"{profile['name']} Campaign",
+            "subject_line": "{{contact.firstname}} — let's talk about your next move",
+            "headline": "Your Home. Your Equity. Your Next Chapter.",
+            "subheadline": "We've helped thousands of homeowners maximize their equity",
+            "body_headline": "49 Years of Trust. Your Equity, Maximized.",
+            "body_copy": "The market's changed since you bought. <strong style='color: #004237;'>You've likely built significant equity</strong> — let's put it to work for your next move.",
+            "callout_box": {
+                "title": "Your Estimated Equity",
+                "main_text": "$400k–$600k",
+                "subtitle": "What could you do with that?"
+            },
+            "cta_button_text": "GET MY EQUITY ESTIMATE",
+            "cta_agent_message": "We'll create your custom equity plan in 24 hours",
+            "cta_tagline": "No sales pitch, just expert guidance",
+            "form_questions": [
+                {
+                    "question": "What's next for you?",
+                    "subtitle": "Pick what fits — we'll send you a plan",
+                    "type": "radio",
+                    "options": [
+                        {"label": "Upgrade to a larger home", "description": "Growing family or need more space"},
+                        {"label": "Downsize", "description": "Empty nest or simplify"},
+                        {"label": "Relocate", "description": "New job or lifestyle change"},
+                        {"label": "Investment property", "description": "Build your portfolio"}
+                    ]
+                },
+                {
+                    "question": "What matters most to you?",
+                    "subtitle": "Check all that apply",
+                    "type": "checkbox",
+                    "options": [
+                        {"label": "Getting top dollar", "description": "Maximize my equity"},
+                        {"label": "Speed", "description": "Quick, smooth transaction"},
+                        {"label": "Convenience", "description": "Minimal hassle"},
+                        {"label": "Expert guidance", "description": "Navigate the market confidently"}
+                    ]
+                },
+                {
+                    "question": "When are you thinking of making a move?",
+                    "subtitle": "This helps us prioritize your plan",
+                    "type": "radio",
+                    "options": [
+                        {"label": "Within 3 months", "description": ""},
+                        {"label": "3-6 months", "description": ""},
+                        {"label": "6-12 months", "description": ""},
+                        {"label": "Just exploring", "description": ""}
+                    ]
                 }
-    except:
-        pass
-    
-    return None
+            ],
+            "proof_points": [
+                {
+                    "icon": "🏆",
+                    "title": "2% More Than Average",
+                    "description": "Our proven marketing gets you more for your home"
+                },
+                {
+                    "icon": "🌍",
+                    "title": "Global Reach",
+                    "description": "JamesEdition connects your home to qualified luxury buyers worldwide"
+                },
+                {
+                    "icon": "🤝",
+                    "title": "49 Years of Relationships",
+                    "description": "We know the buyers before they're looking"
+                }
+            ],
+            "testimonial": {
+                "quote": "She's handled over 13 transactions for me. Always attentive, fantastic negotiator.",
+                "attribution": "Client since 2005"
+            },
+            "footer_tagline": "Keyes Real Estate | $2.28B sold | Since 1976"
+        }
+
+
+if __name__ == "__main__":
+    # Test the generator
+    result = generate_campaign_content("all-cash")
+    print(json.dumps(result, indent=2))
 
