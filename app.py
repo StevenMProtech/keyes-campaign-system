@@ -2131,17 +2131,34 @@ def campaign_new():
     # Load behavioral audiences from database
     behavioral_audiences = load_behavioral_audiences()
     
+    # Load past client segments
+    try:
+        with open('past_clients.json', 'r') as f:
+            past_client_segments = json.load(f)
+    except:
+        past_client_segments = []
+    
     # Load template and replace placeholders
     with open('templates/campaign_new_complete.html', 'r') as f:
         html = f.read()
+    
+    # Build past client segments options HTML
+    past_client_options_html = ""
+    if past_client_segments:
+        past_client_options_html = '<option disabled>──────────────────────────</option>\n'
+        past_client_options_html += '<option disabled style="font-weight: 600;">PAST CLIENT SEGMENTS</option>\n'
+        for seg in past_client_segments:
+            selected = 'selected' if default_segment == seg['id'] else ''
+            past_client_options_html += f'<option value="{seg["id"]}" {selected}>{seg["name"]}</option>\n'
     
     # Build behavioral audiences options HTML
     behavioral_options_html = ""
     if behavioral_audiences:
         behavioral_options_html = '<option disabled>──────────────────────────</option>\n'
+        behavioral_options_html += '<option disabled style="font-weight: 600;">BEHAVIORAL AUDIENCES</option>\n'
         for aud in behavioral_audiences:
             selected = 'selected' if default_segment == aud['id'] else ''
-            behavioral_options_html += f'<option value="{aud["id"]}" {selected}>{aud.get("audience_name", aud.get("name", "Unnamed"))} (Behavioral)</option>\n'
+            behavioral_options_html += f'<option value="{aud["id"]}" {selected}>{aud.get("audience_name", aud.get("name", "Unnamed"))}</option>\n'
     
     # Replace segment selection placeholders
     html = html.replace('{{SELECTED_ALL_CASH}}', 'selected' if default_segment == 'all-cash' else '')
@@ -2150,8 +2167,9 @@ def campaign_new():
     html = html.replace('{{SELECTED_GENERAL}}', 'selected' if default_segment == 'general' else '')
     html = html.replace('{{SELECTED_LUXURY}}', 'selected' if default_segment == 'homes-over-$2,000,000' else '')
     
-    # Inject behavioral audiences before </select>
-    html = html.replace('</select>', behavioral_options_html + '</select>')
+    # Inject past client segments and behavioral audiences before </select>
+    all_audiences_html = past_client_options_html + behavioral_options_html
+    html = html.replace('</select>', all_audiences_html + '</select>')
     
     return html
 
@@ -3109,7 +3127,7 @@ def past_client_analytics(segment_id):
     
     # Load client data
     try:
-        df = pd.read_csv('/home/ubuntu/keyes-system/uploaded_client_data.csv')
+        df = pd.read_csv('uploaded_client_data.csv')
         
         # Clean data
         df['AGE'] = pd.to_numeric(df['AGE'], errors='coerce')
@@ -3307,7 +3325,7 @@ def upload_client_data():
         
         # Save uploaded file
         filename = client_file.filename
-        filepath = f'/home/ubuntu/keyes-system/uploaded_client_data.{filename.split(".")[-1]}'
+        filepath = f'uploaded_client_data.{filename.split(".")[-1]}'
         client_file.save(filepath)
         
         # Read file based on extension
@@ -3340,7 +3358,7 @@ def upload_client_data():
         
         # Load market data for median values
         try:
-            market_df = pd.read_excel('/home/ubuntu/keyes-system/market_data.xlsx')
+            market_df = pd.read_excel('market_data.xlsx')
             # Create ZIP to median mapping if available
             if 'ZIP' in df.columns and 'ZIP' in market_df.columns:
                 zip_medians = market_df.set_index('ZIP')['MedianHomePrice'].to_dict() if 'MedianHomePrice' in market_df.columns else {}
