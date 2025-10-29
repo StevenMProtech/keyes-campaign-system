@@ -1,0 +1,41 @@
+[
+  {
+    "id": "all-cash",
+    "name": "All Cash Buyers",
+    "description": "Past clients who purchased properties with all-cash transactions",
+    "icon": "$",
+    "color": "#004237",
+    "total_clients": 0
+  },
+  {
+    "id": "absentee-instate",
+    "name": "Absentee Owner (In-State)",
+    "description": "Property owners who live in Florida but own investment/secondary properties elsewhere in state",
+    "icon": "\u25c6",
+    "color": "#fcbfa7",
+    "total_clients": 0
+  },
+  {
+    "id": "absentee-outstate",
+    "name": "Absentee Owner (Out-of-State)",
+    "description": "Property owners who live outside Florida but own properties in Florida",
+    "icon": "\u2605",
+    "color": "#004237",
+    "total_clients": 0
+  },
+  {
+    "id": "general",
+    "name": "General Past Clients",
+    "description": "All other past clients not in specific segments",
+    "icon": "\u2022",
+    "color": "#fcbfa7",
+    "total_clients": 0
+  },
+  {
+    "id": "homes-over-$2,000,000",
+    "name": "Homes Over $2,000,000",
+    "description": "Past clients who purchased a home with us over $2,000,000",
+    "color": "#004237",
+    "icon": "$"
+  }
+]

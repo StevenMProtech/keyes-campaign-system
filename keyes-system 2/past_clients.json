@@ -1,0 +1,110 @@
+[
+  {
+    "id": "65-not-retired",
+    "name": "65+ Not Retired Yet",
+    "description": "High-equity, near-retirement owners planning lifestyle or wealth moves",
+    "formula": "Age >= 60 and EmploymentStatus ≠ 'Retired'",
+    "color": "#004237",
+    "count": 1202
+  },
+  {
+    "id": "growing-families",
+    "name": "30-45yo Growing Families",
+    "description": "Owners with equity and space pressure; bought 6–10 years ago",
+    "formula": "YearsOwned >= 6 and Age BETWEEN 30 AND 45",
+    "color": "#fcbfa7",
+    "count": 490
+  },
+  {
+    "id": "trapped-movers",
+    "name": "High-Equity, High-Rate (Trapped Movers)",
+    "description": "Equity ≥ $200K and InterestRate ≥ 6.5%",
+    "formula": "Equity >= 200000 and Rate >= 0.065",
+    "color": "#006652",
+    "count": 512
+  },
+  {
+    "id": "all-cash-seniors",
+    "name": "65+ All-Cash Owners",
+    "description": "Liquidity high, low urgency; target for wealth simplification",
+    "formula": "Mortgage_Balance = 0 and Age >= 65",
+    "color": "#fda67a",
+    "count": 432
+  },
+  {
+    "id": "large-home-owners",
+    "name": "Large-Home Owners",
+    "description": "Homes ≥ 125% of ZIP median SQFT",
+    "formula": "HomeSQFT / MedianSQFT >= 1.25",
+    "color": "#003329",
+    "count": 1726
+  },
+  {
+    "id": "cash-renters",
+    "name": "Cash Renters / 2020–22 Sellers",
+    "description": "Sold in last 2–4 yrs, renting, waiting to re-enter",
+    "formula": "LastSaleDate BETWEEN 2020–2022 and IsOwner = FALSE",
+    "color": "#f9d5c3",
+    "count": 333
+  },
+  {
+    "id": "warn-list",
+    "name": "WARN-List / Job Change",
+    "description": "Employer flagged or JobTitle changed in last 6 mo",
+    "formula": "Match to WARN or LinkedIn change feed",
+    "color": "#005545",
+    "count": 0
+  },
+  {
+    "id": "high-intent-visitors",
+    "name": "High-Intent Website Visitors",
+    "description": "Past clients showing repeat site behavior: 3+ property views in 7 days, viewed valuation tool or mortgage calc, saved a listing or requested showing",
+    "formula": "BehaviorScore >= 5 (PageViews*0.6 + ValuationVisits*0.4)",
+    "color": "#ffb899",
+    "count": 0
+  },
+  {
+    "id": "equity-comfort-tiers",
+    "name": "Equity Comfort Tiers (Dynamic)",
+    "description": "Buy Outright (≥100%), Near Outright (90-100%), Move-Ready (70-89%), Equity-Rich (50-69%), Low Mobility (<50%)",
+    "formula": "Equity_Comfort_Score = Equity / MedianHomePrice",
+    "color": "#002b21",
+    "count": 0,
+    "subtiers": [
+      {
+        "name": "Buy Outright",
+        "formula": "Equity_Comfort_Score >= 1.0",
+        "color": "#004237"
+      },
+      {
+        "name": "Near Outright",
+        "formula": "Equity_Comfort_Score >= 0.9 and < 1.0",
+        "color": "#006652"
+      },
+      {
+        "name": "Move-Ready",
+        "formula": "Equity_Comfort_Score >= 0.7 and < 0.9",
+        "color": "#fcbfa7"
+      },
+      {
+        "name": "Equity-Rich (Nurture)",
+        "formula": "Equity_Comfort_Score >= 0.5 and < 0.7",
+        "color": "#fda67a"
+      },
+      {
+        "name": "Low Mobility",
+        "formula": "Equity_Comfort_Score < 0.5",
+        "color": "#f9d5c3"
+      }
+    ]
+  },
+  {
+    "id": "young-cash-owners",
+    "name": "Young All-Cash Owners",
+    "description": "Investors or future referrers",
+    "formula": "Age < 45 and Mortgage_Balance = 0",
+    "color": "#007a5e",
+    "count": 186
+  }
+]
+
