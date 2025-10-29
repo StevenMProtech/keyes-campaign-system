@@ -3818,8 +3818,8 @@ def edit_past_client_segment(segment_id):
             <p>Modify the formula and settings for this audience segment</p>
         </div>
         
-        <div class="card">
-            <form method="POST">
+        <form method="POST">
+            <div class="card">
                 <div class="form-group">
                     <label for="name">Segment Name</label>
                     <input type="text" id="name" name="name" value="{segment['name']}" required>
@@ -3844,19 +3844,12 @@ def edit_past_client_segment(segment_id):
                         </div>
                     </div>
                 </div>
-                
-            </form>
-        </div>
-        
-        <!-- File Management Section -->
-        <div class="card">
-            <h2 style="color: #004237; margin-bottom: 20px;">Data Files</h2>
-            <p style="margin-bottom: 16px; color: #666;">Select which files to use for this segment. The count will be recalculated when you save.</p>
+            </div>
             
-            <form method="POST">
-                <input type="hidden" name="name" value="{segment['name'].replace('"', '&quot;')}">
-                <input type="hidden" name="description" value="{segment['description'].replace('"', '&quot;')}">
-                <input type="hidden" name="formula" value="{segment['formula'].replace('"', '&quot;')}">
+            <!-- File Management Section -->
+            <div class="card">
+                <h2 style="color: #004237; margin-bottom: 20px;">Data Files</h2>
+                <p style="margin-bottom: 16px; color: #666;">Select which files to use for this segment. The count will be recalculated when you save.</p>
                 
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
                     <thead>
@@ -3877,8 +3870,8 @@ def edit_past_client_segment(segment_id):
                     <a href="/audiences/past-clients" style="padding: 12px 24px; background: #e0e0e0; color: #333; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Cancel</a>
                     <span style="margin-left: auto; font-size: 13px; color: #666;">Current count: <strong>{segment.get('count', 0)}</strong></span>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </body>
 </html>
