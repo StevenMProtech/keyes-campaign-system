@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Audience - The Keyes Company</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f7f3e5;
+            padding: 40px 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header {
+            background: linear-gradient(135deg, #004237 0%, #003329 100%);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 { font-size: 32px; }
+        .header p { margin-top: 8px; opacity: 0.9; }
+        
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            color: #004237;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #004237;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn-primary {
+            background: #004237;
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        .btn-primary:hover {
+            background: #003329;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: #fcbfa7;
+            color: #004237;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #fda67a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Edit Audience</h1>
+                    <p>Update audience details and profile</p>
+                </div>
+                <a href="/audiences" style="padding: 12px 24px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">← Back to Audiences</a>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <form id="editForm">
+                <input type="hidden" id="audience_id" value="{{AUDIENCE_ID}}">
+                
+                <div class="form-group">
+                    <label>Audience Name *</label>
+                    <input type="text" id="audience_name" value="{{AUDIENCE_NAME}}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Summary</label>
+                    <textarea id="segment_summary">{{SEGMENT_SUMMARY}}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Demographics</label>
+                    <textarea id="demographics">{{DEMOGRAPHICS}}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Psychographics</label>
+                    <textarea id="psychographics">{{PSYCHOGRAPHICS}}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Behavior</label>
+                    <textarea id="behavior">{{BEHAVIOR}}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Communication Style</label>
+                    <textarea id="communication_style">{{COMMUNICATION_STYLE}}</textarea>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                <button type="submit" class="btn-primary">Save Changes</button>
+                <button type="button" class="btn-secondary" onclick="previewCampaign()" style="background: #fcbfa7; color: #004237;">Preview Campaign Copy</button>
+                <a href="/audiences" class="btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
+        <div style="max-width: 800px; margin: 40px auto; background: white; border-radius: 12px; padding: 40px; position: relative;">
+            <button onclick="closePreview()" style="position: absolute; top: 20px; right: 20px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+            <h2 style="color: #004237; margin-bottom: 20px;">Campaign Preview</h2>
+            <div id="previewContent" style="color: #666;">
+                <p>Loading preview...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                audience_id: document.getElementById('audience_id').value,
+                audience_name: document.getElementById('audience_name').value,
+                segment_summary: document.getElementById('segment_summary').value,
+                demographics: document.getElementById('demographics').value,
+                psychographics: document.getElementById('psychographics').value,
+                behavior: document.getElementById('behavior').value,
+                communication_style: document.getElementById('communication_style').value
+            };
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/update-audience', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Audience updated successfully!');
+                    window.location.href = '/audiences';
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error updating audience: ' + error.message);
+            } finally {
+                btn.textContent = 'Save Changes';
+                btn.disabled = false;
+            }
+        });
+        
+        function previewCampaign() {
+            const audienceId = document.getElementById('audience_id').value;
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('previewContent');
+            
+            modal.style.display = 'block';
+            content.innerHTML = '<p style="text-align: center; padding: 40px;">Generating preview...</p>';
+            
+            fetch(`/api/preview-audience-campaign?audience_id=${audienceId}`)
+                .then(r => r.json())
+                .then(data => {
+                    content.innerHTML = `
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #004237; margin-bottom: 10px;">Campaign Name</h3>
+                            <p style="font-size: 18px; font-weight: 600;">${data.campaign_name}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #004237; margin-bottom: 10px;">Subject Line</h3>
+                            <p style="font-size: 16px;">${data.subject_line}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #004237; margin-bottom: 10px;">Headline</h3>
+                            <p style="font-size: 24px; font-weight: 300; line-height: 1.3;">${data.headline}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #004237; margin-bottom: 10px;">Subheadline</h3>
+                            <p style="font-size: 18px; color: #666;">${data.subheadline}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #004237; margin-bottom: 10px;">Body Copy</h3>
+                            <p style="font-size: 16px; line-height: 1.7; white-space: pre-wrap;">${data.body_copy}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px; background: linear-gradient(135deg, #fcbfa7 0%, #fda67a 100%); padding: 30px; border-radius: 12px; text-align: center;">
+                            <h3 style="color: #004237; margin-bottom: 15px;">Callout Box</h3>
+                            <p style="font-size: 14px; color: #004237; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">${data.callout_box.title}</p>
+                            <p style="font-size: 36px; color: #004237; font-weight: 700; margin-bottom: 8px;">${data.callout_box.main_text}</p>
+                            <p style="font-size: 14px; color: #004237;">${data.callout_box.subtitle}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #004237; margin-bottom: 10px;">CTA Button</h3>
+                            <button style="background: #004237; color: white; padding: 15px 40px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer;">${data.cta_button_text}</button>
+                        </div>
+                    `;
+                })
+                .catch(err => {
+                    content.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 40px;">Error generating preview. Please try again.</p>';
+                });
+        }
+        
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
