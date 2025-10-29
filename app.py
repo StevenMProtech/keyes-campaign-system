@@ -4055,7 +4055,8 @@ def admin_upload_files():
     uploaded_count = 0
     for file in files:
         if file.filename:
-            file_stream = io.BytesIO(file.read())
+            file_content = file.read()
+            file_stream = io.BytesIO(file_content)
             result = upload_file_to_spaces(file_stream, file.filename)
             if result['success']:
                 uploaded_count += 1
