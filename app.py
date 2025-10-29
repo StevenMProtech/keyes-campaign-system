@@ -3491,8 +3491,10 @@ def create_past_client_segment():
                     try:
                         query = parse_formula(formula)
                         matching_df = merged_df.query(query)
-                    except:
+                    except Exception as e:
+                        print(f"Analytics query error: {e}")
                         matching_df = merged_df
+
                 else:
                     matching_df = merged_df
                 
