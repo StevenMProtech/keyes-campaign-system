@@ -3484,6 +3484,56 @@ def create_past_client_segment():
                 count = evaluate_formula(merged_df, formula)
                 new_segment['count'] = count
                 
+                # Calculate analytics for AI generator
+                # Filter to matching records only
+                if formula and count > 0:
+                    from formula_evaluator import parse_formula
+                    try:
+                        query = parse_formula(formula)
+                        matching_df = merged_df.query(query)
+                    except:
+                        matching_df = merged_df
+                else:
+                    matching_df = merged_df
+                
+                # Age distribution
+                if 'AGE' in matching_df.columns:
+                    age_data = matching_df['AGE'].dropna()
+                    if len(age_data) > 0:
+                        new_segment['median_age'] = int(age_data.median())
+                        new_segment['age_distribution'] = {
+                            '25-34': int(((age_data >= 25) & (age_data < 35)).sum()),
+                            '35-44': int(((age_data >= 35) & (age_data < 45)).sum()),
+                            '45-54': int(((age_data >= 45) & (age_data < 55)).sum()),
+                            '55-64': int(((age_data >= 55) & (age_data < 65)).sum()),
+                            '65+': int((age_data >= 65).sum())
+                        }
+                
+                # Equity distribution
+                if 'EQUITY' in matching_df.columns:
+                    equity_data = matching_df['EQUITY'].dropna()
+                    if len(equity_data) > 0:
+                        new_segment['median_equity'] = int(equity_data.median())
+                        new_segment['equity_distribution'] = {
+                            '<100k': int((equity_data < 100000).sum()),
+                            '100k-250k': int(((equity_data >= 100000) & (equity_data < 250000)).sum()),
+                            '250k-500k': int(((equity_data >= 250000) & (equity_data < 500000)).sum()),
+                            '500k-1M': int(((equity_data >= 500000) & (equity_data < 1000000)).sum()),
+                            '1M+': int((equity_data >= 1000000).sum())
+                        }
+                
+                # Home value distribution
+                if 'CURRENT_AVM_VALUE' in matching_df.columns:
+                    value_data = matching_df['CURRENT_AVM_VALUE'].dropna()
+                    if len(value_data) > 0:
+                        new_segment['median_home_value'] = int(value_data.median())
+                
+                # Length of residence
+                if 'LENGTH_OF_RESIDENCE' in matching_df.columns:
+                    lor_data = matching_df['LENGTH_OF_RESIDENCE'].dropna()
+                    if len(lor_data) > 0:
+                        new_segment['median_length_of_residence'] = int(lor_data.median())
+                
             except Exception as e:
                 return f'<script>alert("Error calculating count: {str(e)}"); window.history.back();</script>'
         
@@ -3767,6 +3817,56 @@ def edit_past_client_segment(segment_id):
                 else:
                     count = 0
                 segment['count'] = count
+                
+                # Calculate analytics for AI generator
+                # Filter to matching records only
+                if formula and count > 0:
+                    from formula_evaluator import parse_formula
+                    try:
+                        query = parse_formula(formula)
+                        matching_df = merged_df.query(query)
+                    except:
+                        matching_df = merged_df
+                else:
+                    matching_df = merged_df
+                
+                # Age distribution
+                if 'AGE' in matching_df.columns:
+                    age_data = matching_df['AGE'].dropna()
+                    if len(age_data) > 0:
+                        segment['median_age'] = int(age_data.median())
+                        segment['age_distribution'] = {
+                            '25-34': int(((age_data >= 25) & (age_data < 35)).sum()),
+                            '35-44': int(((age_data >= 35) & (age_data < 45)).sum()),
+                            '45-54': int(((age_data >= 45) & (age_data < 55)).sum()),
+                            '55-64': int(((age_data >= 55) & (age_data < 65)).sum()),
+                            '65+': int((age_data >= 65).sum())
+                        }
+                
+                # Equity distribution
+                if 'EQUITY' in matching_df.columns:
+                    equity_data = matching_df['EQUITY'].dropna()
+                    if len(equity_data) > 0:
+                        segment['median_equity'] = int(equity_data.median())
+                        segment['equity_distribution'] = {
+                            '<100k': int((equity_data < 100000).sum()),
+                            '100k-250k': int(((equity_data >= 100000) & (equity_data < 250000)).sum()),
+                            '250k-500k': int(((equity_data >= 250000) & (equity_data < 500000)).sum()),
+                            '500k-1M': int(((equity_data >= 500000) & (equity_data < 1000000)).sum()),
+                            '1M+': int((equity_data >= 1000000).sum())
+                        }
+                
+                # Home value distribution
+                if 'CURRENT_AVM_VALUE' in matching_df.columns:
+                    value_data = matching_df['CURRENT_AVM_VALUE'].dropna()
+                    if len(value_data) > 0:
+                        segment['median_home_value'] = int(value_data.median())
+                
+                # Length of residence
+                if 'LENGTH_OF_RESIDENCE' in matching_df.columns:
+                    lor_data = matching_df['LENGTH_OF_RESIDENCE'].dropna()
+                    if len(lor_data) > 0:
+                        segment['median_length_of_residence'] = int(lor_data.median())
                 
                 # Save
                 with open('past_clients.json', 'w') as f:
