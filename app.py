@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, redirect, url_for
+from flask import Flask, request, jsonify, redirect, url_for, session
 from flask_cors import CORS
 import json
 import os
@@ -8,6 +8,7 @@ from audience_analyzer import analyze_audience_screenshots, create_audience_card
 from html_generator import generate_email_html_content
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'keyes-campaign-builder-secret-2025')
 CORS(app)
 
 SUBMISSIONS_FILE = 'submissions.json'
