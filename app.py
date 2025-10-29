@@ -11,6 +11,20 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'keyes-campaign-builder-secret-2025')
 CORS(app)
 
+# Global authentication check
+@app.before_request
+def require_authentication():
+    """Require authentication for all routes except login"""
+    # Allow login page and static files
+    if request.endpoint in ['admin_login', 'static']:
+        return None
+    
+    # Check if user is authenticated
+    if not session.get('admin_authenticated'):
+        return redirect('/admin/login')
+    
+    return None
+
 SUBMISSIONS_FILE = 'submissions.json'
 CAMPAIGNS_FILE = 'campaigns.json'
 SEGMENTS_FILE = 'segments.json'
@@ -2964,9 +2978,31 @@ def audiences_list():
 @app.route('/audiences/past-clients')
 def past_clients():
     """Past Client page with 10 unified segments"""
+    from storage import list_files_in_spaces
+    
     # Load past client segments
     with open('past_clients.json', 'r') as f:
         segments = json.load(f)
+    
+    # Get uploaded files from Spaces
+    files = list_files_in_spaces()
+    
+    # Build files table
+    files_html = ""
+    for file in files:
+        size_mb = file['size'] / (1024 * 1024)
+        date = file['last_modified'].strftime('%Y-%m-%d %H:%M')
+        files_html += f'''
+        <tr>
+            <td><input type="checkbox" name="selected_files" value="{file['key']}" class="file-checkbox"></td>
+            <td>{file['filename']}</td>
+            <td>{size_mb:.2f} MB</td>
+            <td>{date}</td>
+        </tr>
+        '''
+    
+    if not files_html:
+        files_html = '<tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">No files uploaded yet. Upload a CSV file above to get started.</td></tr>'
     
     # Build segment cards
     segment_cards = ""
@@ -2998,6 +3034,7 @@ def past_clients():
                 <a href="/campaign/new?segment={seg['id']}" style="padding: 10px 20px; background: #004237; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">Generate Campaign</a>
                 <a href="/audiences/past-clients/{seg['id']}/analytics" style="padding: 10px 20px; background: #fcbfa7; color: #004237; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">View Analytics</a>
                 <a href="/audiences/past-clients/{seg['id']}/edit" style="padding: 10px 20px; background: #006652; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">Edit Formula</a>
+                <button onclick="recalculateSegment('{seg['id']}')" style="padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">🔄 Recalculate</button>
             </div>
         </div>
         """
@@ -3099,16 +3136,67 @@ def past_clients():
         </div>
         
         <div class="info-box">
-            <h3>About These Segments</h3>
-            <p>These 10 segments combine demographic, behavioral, and equity data to identify high-intent past clients. Upload your client data CSV/Excel to populate counts and enable campaign targeting.</p>
-            <form action="/api/upload-client-data" method="post" enctype="multipart/form-data" style="margin-top: 16px;" onsubmit="document.getElementById('uploadBtn').disabled=true; document.getElementById('uploadBtn').innerText='Processing...'; return true;">
-                <input type="file" name="client_file" accept=".csv,.xlsx,.xls" required style="padding: 8px; border: 2px solid #004237; border-radius: 6px; background: white;">
-                <button type="submit" id="uploadBtn" style="padding: 10px 24px; background: #004237; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-left: 10px;">Upload & Process</button>
+            <h3>📁 File Management</h3>
+            <p style="margin-bottom: 16px;">Upload client data files and select which ones to use for calculating segment counts.</p>
+            
+            <form action="/admin/upload-files" method="post" enctype="multipart/form-data" style="margin-bottom: 20px;" onsubmit="document.getElementById('uploadBtn').disabled=true; document.getElementById('uploadBtn').innerText='Uploading...'; return true;">
+                <input type="file" name="files" accept=".csv,.xlsx,.xls" multiple required style="padding: 8px; border: 2px solid #004237; border-radius: 6px; background: white;">
+                <button type="submit" id="uploadBtn" style="padding: 10px 24px; background: #004237; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-left: 10px;">Upload Files</button>
             </form>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+                <thead>
+                    <tr style="background: #f0e6d8;">
+                        <th style="padding: 10px; text-align: left; width: 50px;">Select</th>
+                        <th style="padding: 10px; text-align: left;">Filename</th>
+                        <th style="padding: 10px; text-align: left; width: 120px;">Size</th>
+                        <th style="padding: 10px; text-align: left; width: 180px;">Upload Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {files_html}
+                </tbody>
+            </table>
+            <p style="margin-top: 12px; font-size: 13px; color: #666;"><strong>Tip:</strong> Select files above, then click the 🔄 Recalculate button on any segment below to update its count.</p>
         </div>
         
         {segment_cards}
     </div>
+    
+    <script>
+        function recalculateSegment(segmentId) {{
+            // Get selected files
+            const checkboxes = document.querySelectorAll('.file-checkbox:checked');
+            if (checkboxes.length === 0) {{
+                alert('Please select at least one file from the File Management section above');
+                return;
+            }}
+            
+            const selectedFiles = Array.from(checkboxes).map(cb => cb.value);
+            
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/api/recalculate-segment';
+            
+            const segmentInput = document.createElement('input');
+            segmentInput.type = 'hidden';
+            segmentInput.name = 'segment_id';
+            segmentInput.value = segmentId;
+            form.appendChild(segmentInput);
+            
+            selectedFiles.forEach(fileKey => {{
+                const fileInput = document.createElement('input');
+                fileInput.type = 'hidden';
+                fileInput.name = 'selected_files';
+                fileInput.value = fileKey;
+                form.appendChild(fileInput);
+            }});
+            
+            document.body.appendChild(form);
+            form.submit();
+        }}
+    </script>
 </body>
 </html>
 """
@@ -3119,6 +3207,7 @@ def edit_past_client_segment(segment_id):
     """Edit a past client segment formula"""
     import json
     from formula_evaluator import validate_formula, get_available_fields
+    from storage import list_files_in_spaces
     
     # Load segments
     with open('past_clients.json', 'r') as f:
@@ -3128,35 +3217,131 @@ def edit_past_client_segment(segment_id):
     if not segment:
         return "Segment not found", 404
     
+    # Get uploaded files
+    files = list_files_in_spaces()
+    
+    # Get currently selected files for this segment (if stored)
+    selected_file_keys = segment.get('selected_files', [])
+    
     if request.method == 'POST':
-        # Update formula
-        new_formula = request.form.get('formula', '').strip()
-        new_name = request.form.get('name', '').strip()
-        new_description = request.form.get('description', '').strip()
+        action = request.form.get('action', 'save')
         
-        # Validate formula
-        validation = validate_formula(new_formula)
-        if not validation['valid']:
-            return f'<script>alert("Invalid formula: {validation["message"]}"); window.history.back();</script>'
+        if action == 'recalculate':
+            # Recalculate with selected files
+            selected_files = request.form.getlist('selected_files')
+            if not selected_files:
+                return '<script>alert("Please select at least one file"); window.history.back();</script>'
+            
+            # Store selected files in segment
+            segment['selected_files'] = selected_files
+            
+            # Trigger recalculation
+            import pandas as pd
+            from storage import download_file_from_spaces
+            from formula_evaluator import evaluate_formula
+            import os
+            
+            try:
+                # Download and merge selected files
+                dfs = []
+                for file_key in selected_files:
+                    local_path = f'/tmp/{file_key.split("/")[-1]}'
+                    result = download_file_from_spaces(file_key, local_path)
+                    if result['success']:
+                        if local_path.endswith('.csv'):
+                            df = pd.read_csv(local_path)
+                        else:
+                            df = pd.read_excel(local_path)
+                        dfs.append(df)
+                        os.remove(local_path)
+                
+                merged_df = pd.concat(dfs, ignore_index=True)
+                
+                # Prepare data
+                if 'AGE' in merged_df.columns:
+                    merged_df['AGE'] = pd.to_numeric(merged_df['AGE'], errors='coerce')
+                if 'CURRENT_SALE_MTG_1_LOAN_AMOUNT' in merged_df.columns:
+                    merged_df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'] = pd.to_numeric(merged_df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'], errors='coerce').fillna(0)
+                if 'CURRENT_AVM_VALUE' in merged_df.columns:
+                    merged_df['CURRENT_AVM_VALUE'] = pd.to_numeric(merged_df['CURRENT_AVM_VALUE'], errors='coerce')
+                if 'CURRENT_SALE_MTG_1_INT_RATE' in merged_df.columns:
+                    merged_df['CURRENT_SALE_MTG_1_INT_RATE'] = pd.to_numeric(merged_df['CURRENT_SALE_MTG_1_INT_RATE'], errors='coerce')
+                if 'LENGTH_OF_RESIDENCE' in merged_df.columns:
+                    merged_df['LENGTH_OF_RESIDENCE'] = pd.to_numeric(merged_df['LENGTH_OF_RESIDENCE'], errors='coerce')
+                if 'SUM_BUILDING_SQFT' in merged_df.columns:
+                    merged_df['SUM_BUILDING_SQFT'] = pd.to_numeric(merged_df['SUM_BUILDING_SQFT'], errors='coerce')
+                
+                merged_df['EQUITY'] = merged_df['CURRENT_AVM_VALUE'] - merged_df['CURRENT_SALE_MTG_1_LOAN_AMOUNT']
+                merged_df['MEDIAN_HOME_PRICE'] = 500000
+                merged_df['MEDIAN_SQFT'] = 2000
+                if 'CURRENT_SALE_RECORDING_DATE' in merged_df.columns:
+                    merged_df['SALE_YEAR'] = pd.to_datetime(merged_df['CURRENT_SALE_RECORDING_DATE'], errors='coerce').dt.year
+                merged_df['EQUITY_COMFORT_SCORE'] = merged_df['EQUITY'] / merged_df['MEDIAN_HOME_PRICE']
+                
+                # Calculate count
+                formula = segment.get('formula', '')
+                if formula:
+                    count = evaluate_formula(merged_df, formula)
+                else:
+                    count = 0
+                segment['count'] = count
+                
+                # Save
+                with open('past_clients.json', 'w') as f:
+                    json.dump(segments, f, indent=2)
+                
+                return f'<script>alert("Recalculated! New count: {count} from {len(merged_df)} records"); window.location.href="/audiences/past-clients/{segment_id}/edit";</script>'
+            
+            except Exception as e:
+                return f'<script>alert("Error: {str(e)}"); window.history.back();</script>'
         
-        # Update segment
-        segment['formula'] = new_formula
-        if new_name:
-            segment['name'] = new_name
-        if new_description:
-            segment['description'] = new_description
-        
-        # Save updated segments
-        with open('past_clients.json', 'w') as f:
-            json.dump(segments, f, indent=2)
-        
-        return '<script>alert("Segment updated successfully!"); window.location.href="/audiences/past-clients";</script>'
+        else:
+            # Save formula changes
+            new_formula = request.form.get('formula', '').strip()
+            new_name = request.form.get('name', '').strip()
+            new_description = request.form.get('description', '').strip()
+            
+            # Validate formula
+            validation = validate_formula(new_formula)
+            if not validation['valid']:
+                return f'<script>alert("Invalid formula: {validation["message"]}"); window.history.back();</script>'
+            
+            # Update segment
+            segment['formula'] = new_formula
+            if new_name:
+                segment['name'] = new_name
+            if new_description:
+                segment['description'] = new_description
+            
+            # Save updated segments
+            with open('past_clients.json', 'w') as f:
+                json.dump(segments, f, indent=2)
+            
+            return '<script>alert("Segment updated successfully!"); window.location.href="/audiences/past-clients";</script>'
     
     # GET request - show edit form
     fields = get_available_fields()
     fields_html = ""
     for field in fields:
         fields_html += f'<div style="margin-bottom: 8px;"><strong>{field["name"]}</strong> ({field["type"]}): {field["description"]}</div>'
+    
+    # Build files list with checkboxes
+    files_html = ""
+    for file in files:
+        size_mb = file['size'] / (1024 * 1024)
+        date = file['last_modified'].strftime('%Y-%m-%d %H:%M')
+        checked = 'checked' if file['key'] in selected_file_keys else ''
+        files_html += f'''
+        <tr>
+            <td><input type="checkbox" name="selected_files" value="{file['key']}" {checked}></td>
+            <td>{file['filename']}</td>
+            <td>{size_mb:.2f} MB</td>
+            <td>{date}</td>
+        </tr>
+        '''
+    
+    if not files_html:
+        files_html = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #999;">No files uploaded. Go to Past Clients page to upload files.</td></tr>'
     
     return f"""<!DOCTYPE html>
 <html>
@@ -3292,9 +3477,36 @@ def edit_past_client_segment(segment_id):
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" name="action" value="save" class="btn btn-primary">Save Changes</button>
                     <a href="/audiences/past-clients" class="btn btn-secondary">Cancel</a>
                 </div>
+            </form>
+        </div>
+        
+        <!-- File Management Section -->
+        <div class="card">
+            <h2 style="color: #004237; margin-bottom: 20px;">📁 Data Files</h2>
+            <p style="margin-bottom: 16px; color: #666;">Select which files to use for calculating this segment's count. Currently using {len(selected_file_keys)} file(s).</p>
+            
+            <form method="POST">
+                <input type="hidden" name="action" value="recalculate">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+                    <thead>
+                        <tr style="background: #f0e6d8;">
+                            <th style="padding: 10px; text-align: left; width: 50px;">Use</th>
+                            <th style="padding: 10px; text-align: left;">Filename</th>
+                            <th style="padding: 10px; text-align: left; width: 120px;">Size</th>
+                            <th style="padding: 10px; text-align: left; width: 180px;">Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {files_html}
+                    </tbody>
+                </table>
+                <button type="submit" style="padding: 12px 24px; background: #ff9800; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                    🔄 Recalculate Count with Selected Files
+                </button>
+                <p style="margin-top: 12px; font-size: 13px; color: #666;">Current count: <strong>{segment.get('count', 0)}</strong></p>
             </form>
         </div>
     </div>
@@ -3603,6 +3815,90 @@ def upload_client_data():
     except Exception as e:
         return f'<script>alert("Error processing file: {str(e)}"); window.location.href="/audiences/past-clients";</script>'
 
+@app.route('/api/recalculate-segment', methods=['POST'])
+def recalculate_segment():
+    """Recalculate a single segment using selected files"""
+    try:
+        import pandas as pd
+        from storage import download_file_from_spaces
+        from formula_evaluator import evaluate_formula
+        import json
+        import os
+        
+        segment_id = request.form.get('segment_id')
+        selected_files = request.form.getlist('selected_files')
+        
+        if not segment_id or not selected_files:
+            return '<script>alert("Missing segment ID or files"); window.location.href="/audiences/past-clients";</script>'
+        
+        # Download and merge all selected files
+        dfs = []
+        for file_key in selected_files:
+            local_path = f'/tmp/{file_key.split("/")[-1]}'
+            result = download_file_from_spaces(file_key, local_path)
+            
+            if result['success']:
+                if local_path.endswith('.csv'):
+                    df = pd.read_csv(local_path)
+                else:
+                    df = pd.read_excel(local_path)
+                dfs.append(df)
+                os.remove(local_path)  # Clean up
+        
+        # Merge all dataframes
+        merged_df = pd.concat(dfs, ignore_index=True)
+        
+        # Prepare data (same as upload handler)
+        if 'AGE' in merged_df.columns:
+            merged_df['AGE'] = pd.to_numeric(merged_df['AGE'], errors='coerce')
+        if 'CURRENT_SALE_MTG_1_LOAN_AMOUNT' in merged_df.columns:
+            merged_df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'] = pd.to_numeric(merged_df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'], errors='coerce').fillna(0)
+        if 'CURRENT_AVM_VALUE' in merged_df.columns:
+            merged_df['CURRENT_AVM_VALUE'] = pd.to_numeric(merged_df['CURRENT_AVM_VALUE'], errors='coerce')
+        if 'CURRENT_SALE_MTG_1_INT_RATE' in merged_df.columns:
+            merged_df['CURRENT_SALE_MTG_1_INT_RATE'] = pd.to_numeric(merged_df['CURRENT_SALE_MTG_1_INT_RATE'], errors='coerce')
+        if 'LENGTH_OF_RESIDENCE' in merged_df.columns:
+            merged_df['LENGTH_OF_RESIDENCE'] = pd.to_numeric(merged_df['LENGTH_OF_RESIDENCE'], errors='coerce')
+        if 'SUM_BUILDING_SQFT' in merged_df.columns:
+            merged_df['SUM_BUILDING_SQFT'] = pd.to_numeric(merged_df['SUM_BUILDING_SQFT'], errors='coerce')
+        
+        merged_df['EQUITY'] = merged_df['CURRENT_AVM_VALUE'] - merged_df['CURRENT_SALE_MTG_1_LOAN_AMOUNT']
+        merged_df['MEDIAN_HOME_PRICE'] = 500000
+        merged_df['MEDIAN_SQFT'] = 2000
+        
+        if 'CURRENT_SALE_RECORDING_DATE' in merged_df.columns:
+            merged_df['SALE_YEAR'] = pd.to_datetime(merged_df['CURRENT_SALE_RECORDING_DATE'], errors='coerce').dt.year
+        merged_df['EQUITY_COMFORT_SCORE'] = merged_df['EQUITY'] / merged_df['MEDIAN_HOME_PRICE']
+        
+        # Load segments
+        with open('past_clients.json', 'r') as f:
+            segments = json.load(f)
+        
+        # Find and update only the specified segment
+        segment = next((s for s in segments if s['id'] == segment_id), None)
+        if not segment:
+            return '<script>alert("Segment not found"); window.location.href="/audiences/past-clients";</script>'
+        
+        # Calculate count for this segment only
+        try:
+            formula = segment.get('formula', '')
+            if formula:
+                count = evaluate_formula(merged_df, formula)
+            else:
+                count = 0
+            segment['count'] = count
+        except Exception as e:
+            return f'<script>alert("Error calculating segment: {str(e)}"); window.location.href="/audiences/past-clients";</script>'
+        
+        # Save updated segments
+        with open('past_clients.json', 'w') as f:
+            json.dump(segments, f, indent=2)
+        
+        return f'<script>alert("Segment \\"{segment["name"]}\\" recalculated! New count: {count} from {len(merged_df)} total records"); window.location.href="/audiences/past-clients";</script>'
+    
+    except Exception as e:
+        return f'<script>alert("Error: {str(e)}"); window.location.href="/audiences/past-clients";</script>'
+
 @app.route('/api/manage-files')
 def manage_files():
     """View and manage uploaded files in DigitalOcean Spaces"""
@@ -3812,7 +4108,8 @@ def admin_login():
 </head>
 <body>
     <div class="login-box">
-        <h1>Admin Access</h1>
+        <img src="https://raw.githubusercontent.com/StevenMProtech/Keyes/main/keyes-new-logo.png" alt="Keyes Logo" style="width: 200px; display: block; margin: 0 auto 24px auto;">
+        <h1>Campaign Manager Login</h1>
         <form method="POST">
             <input type="password" name="password" placeholder="Enter admin password" required autofocus>
             <button type="submit">Login</button>
