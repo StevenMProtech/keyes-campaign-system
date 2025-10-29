@@ -48,133 +48,131 @@ SEGMENT_PROFILES = {
             "Want to maximize equity without hassle",
             "Need liquidity for next opportunity"
         ],
-        "desires": [
-            "Clean, fast transaction",
-            "Maximum value with minimum exposure",
-            "Trusted advisor who understands their wealth",
-            "Privacy and discretion"
+        "motivations": [
+            "Unlock equity for next investment",
+            "Downsize or upgrade lifestyle",
+            "Relocate for family or retirement",
+            "Portfolio rebalancing"
         ],
-        "objections": [
-            "Don't want to overpay in commission",
-            "Concerned about market timing",
-            "Worried about complexity of 1031 exchange",
-            "Don't want property sitting on market"
-        ],
-        "unique_angle": "You paid cash because you value control. Now let's give you control of the timeline too."
+        "communication_style": "Direct, data-driven, no fluff, respect their intelligence",
+        "decision_factors": ["Speed of transaction", "Net proceeds", "Privacy", "Convenience"]
     },
     "absentee-instate": {
         "name": "Absentee Owner (In-State)",
         "demographics": "Property investors, 35-65 years old, own 2+ properties in Florida",
-        "psychographics": "Analytical, ROI-focused, time-constrained, want passive income",
+        "psychographics": "Business-minded, ROI-focused, time-constrained, strategic thinkers",
         "pain_points": [
-            "Managing property from distance is exhausting",
-            "Worried about property condition deteriorating",
-            "Tired of tenant issues and maintenance calls",
-            "Want to redeploy capital more efficiently"
+            "Managing properties from a distance is exhausting",
+            "Maintenance costs eating into returns",
+            "Market conditions changing, unsure if should hold or sell",
+            "Property manager issues or vacancy concerns"
         ],
-        "desires": [
-            "Hands-off transaction process",
-            "Quick close to free up capital",
-            "Professional management of sale",
-            "Clear path to 1031 exchange if needed"
+        "motivations": [
+            "Optimize portfolio performance",
+            "1031 exchange into better property",
+            "Cash out appreciated assets",
+            "Reduce management headaches"
         ],
-        "objections": [
-            "Don't have time to prep property for sale",
-            "Worried about coordinating from afar",
-            "Concerned about getting fair market value",
-            "Don't want to deal with showings"
-        ],
-        "unique_angle": "We'll handle everything from here. You don't even need to visit the property."
+        "communication_style": "Business-focused, numbers-driven, appreciate options and scenarios",
+        "decision_factors": ["ROI comparison", "Tax strategy", "Market timing", "Ease of transaction"]
     },
     "absentee-outstate": {
         "name": "Absentee Owner (Out-of-State)",
-        "demographics": "Former Florida residents, retirees who moved, 50-75 years old",
-        "psychographics": "Nostalgic but practical, want simplicity, trust local expertise",
+        "demographics": "Out-of-state investors or former residents, 40-70 years old",
+        "psychographics": "Nostalgic about Florida, concerned about distance, want local expertise",
         "pain_points": [
             "Can't oversee property from out of state",
-            "Worried about getting taken advantage of",
-            "Don't know current market conditions",
-            "Tired of long-distance property management"
+            "Worried about getting fair market value from afar",
+            "Hurricane/insurance concerns growing",
+            "Don't know current market conditions"
         ],
-        "desires": [
-            "Trustworthy local expert to handle everything",
-            "Fair market value without games",
-            "Simple, remote-friendly process",
-            "Peace of mind"
+        "motivations": [
+            "Simplify life by selling distant property",
+            "Capitalize on Florida market appreciation",
+            "Reduce risk exposure",
+            "Consolidate assets closer to home"
         ],
-        "objections": [
-            "How can I trust someone I can't meet in person?",
-            "Is the market good right now?",
-            "Will I get a fair price?",
-            "Too complicated to sell from afar"
-        ],
-        "unique_angle": "You trusted us when you lived here. We're still the same team—just with 49 more years of experience."
+        "communication_style": "Need reassurance, want local market expertise, appreciate transparency",
+        "decision_factors": ["Trust in local expertise", "Market data", "Simplified process", "Fair pricing"]
     },
     "general": {
         "name": "General Past Clients",
-        "demographics": "Previous Keyes clients, all ages, homeowners in Florida",
-        "psychographics": "Loyal, appreciate relationships, value expertise, life stage transitions",
+        "demographics": "Diverse group, 30-70 years old, various financial situations",
+        "psychographics": "Life transitions, growing families, career changes, lifestyle shifts",
         "pain_points": [
-            "Life has changed since we bought",
-            "Home doesn't fit our needs anymore",
-            "Want to unlock equity for next chapter",
-            "Market feels uncertain"
+            "Life changed since last purchase",
+            "Outgrew current home or need to downsize",
+            "Job relocation or family needs",
+            "Equity built up but not sure what to do"
         ],
-        "desires": [
-            "Work with someone who knows our history",
-            "Smooth transition to next home",
-            "Maximize value of current home",
-            "Trusted guidance through process"
+        "motivations": [
+            "Adapt home to current life stage",
+            "Move closer to family or work",
+            "Upgrade or downsize",
+            "Take advantage of equity growth"
         ],
-        "objections": [
-            "Is now the right time to sell?",
-            "Can we afford to move up?",
-            "What if we can't find the right next home?",
-            "Worried about the hassle of moving"
-        ],
-        "unique_angle": "We helped you find this home. Now let's unlock what it's become."
+        "communication_style": "Warm, relationship-focused, appreciate personal touch and guidance",
+        "decision_factors": ["Trust from past relationship", "Life fit", "Financial sense", "Timing flexibility"]
     },
     "homes-over-$2,000,000": {
-        "name": "Luxury Homeowners ($2M+)",
-        "demographics": "Ultra high net worth, 45-75 years old, sophisticated buyers",
-        "psychographics": "Expect excellence, value discretion, want white-glove service",
+        "name": "Homes Over $2,000,000",
+        "demographics": "Ultra high net worth, 50-75 years old, sophisticated buyers",
+        "psychographics": "Expect white-glove service, value discretion, want exclusive opportunities",
         "pain_points": [
-            "Don't want property publicly listed",
-            "Need privacy and discretion",
-            "Worried about unqualified buyers wasting time",
-            "Want expert who understands luxury market"
+            "Standard marketing won't work for luxury properties",
+            "Need global buyer reach, not just local",
+            "Privacy is paramount",
+            "Want broker who understands luxury market nuances"
         ],
-        "desires": [
-            "Off-market opportunities",
-            "Exclusive buyer network",
-            "Concierge-level service",
-            "Maximum value with minimum exposure"
+        "motivations": [
+            "Upgrade to even higher-end property",
+            "Consolidate multiple properties",
+            "Lifestyle change (yacht, travel, second home)",
+            "Estate planning considerations"
         ],
-        "objections": [
-            "Will you protect my privacy?",
-            "Can you actually find qualified buyers?",
-            "What makes you different from other luxury agents?",
-            "How long will this take?"
-        ],
-        "unique_angle": "Our $2.28B in sales gives you access to buyers most agents will never meet."
+        "communication_style": "Sophisticated, expects expertise, values relationships and track record",
+        "decision_factors": ["Broker's luxury market expertise", "Global reach", "Discretion", "Track record with high-value sales"]
     }
 }
 
-# Keyes Company Background
-KEYES_BACKGROUND = """
-The Keyes Company - Florida's Most Trusted Real Estate Brand
-49 years in business | $2.28B sold since 1976
-Ranked #1 by volume in South Florida*
+# Example email from Harry Dry PDF
+EXAMPLE_EMAIL = """
+Subject Line: Mike — you've got $488K sitting in your house
 
-What makes us different:
-- 49 years of local market expertise
-- $2.28B in proven sales results
-- Exclusive pre-MLS buyer network
-- White-glove concierge service
-- In-house mortgage, title, and insurance
+Mike,
 
-Our sister companies:
-Berkshire Hathaway HomeServices | $109B sold annually
+We helped you buy at $500K.
+Today it's worth $850K.
+
+Most brokers will get you that. We get you 2% more*.
+That's $17,000 more in your pocket.
+
+What could you do with an extra $17K?
+• Cover moving costs and still have $10K left
+• Bigger down payment on your next place
+• Upgrade something in your new home
+• Just keep it
+
+What's next for you?
+(Pick what fits — we'll send you a plan)
+☐ Buy my next home before selling
+☐ Sell and move on
+☐ Downsize
+☐ Buy a second home or investment
+☐ Relocate
+☐ Something else
+
+[Show Me My Options]
+[picture] Michael Chen | 20 min, no pitch
+
+Why we get 2% more:
+• SG Refresh: We stage your home at no cost. First impressions drive value.
+• Global reach: JamesEdition connects your home to qualified luxury buyers worldwide.
+• 49 years of relationships: We know the buyers before they're looking.
+
+"She's handled over 13 transactions for me. Always attentive, fantastic negotiator."
+— Client since 2005
+
 Seven Gables | $2.28B sold | Since 1976
 *2% more than the average broker in the CRMLS
 """
@@ -183,7 +181,7 @@ Seven Gables | $2.28B sold | Since 1976
 def generate_campaign_content(segment_id, campaign_name="", custom_prompt=""):
     """
     Generate complete campaign content for a specific segment
-    using all Harry Dry principles - uses direct API calls instead of OpenAI client
+    using all Harry Dry principles
     
     Args:
         segment_id: The segment to target
@@ -191,26 +189,24 @@ def generate_campaign_content(segment_id, campaign_name="", custom_prompt=""):
         custom_prompt: Optional custom instructions from user
     """
     
-    # Check if it's a standard segment profile
+    # Try to load from hardcoded profiles first
     if segment_id in SEGMENT_PROFILES:
         profile = SEGMENT_PROFILES[segment_id]
     else:
-        # Try to load from behavioral audiences or past clients
+        # Try behavioral_audiences.json
         try:
-            # Load behavioral audiences
             with open('behavioral_audiences.json', 'r') as f:
                 behavioral = json.load(f)
-            audience = next((a for a in behavioral if a['id'] == segment_id), None)
+            audience = next((b for b in behavioral if b['id'] == segment_id), None)
             
             if not audience:
-                # Try past clients
+                # Try past_clients.json
                 with open('past_clients.json', 'r') as f:
                     past_clients = json.load(f)
                 audience = next((p for p in past_clients if p['id'] == segment_id), None)
             
             if audience:
-                # Convert audience to profile format
-                # Extract insights from formula if it's a past client segment
+                # Convert to profile format
                 formula = audience.get('formula', '')
                 count = audience.get('count', 0)
                 description = audience.get('segment_summary', audience.get('description', ''))
@@ -221,33 +217,27 @@ def generate_campaign_content(segment_id, campaign_name="", custom_prompt=""):
                     demographics += "Age-based targeting. "
                 if 'Equity' in formula or 'EQUITY' in formula:
                     demographics += "Equity-focused homeowners. "
-                if 'LENGTH_OF_RESIDENCE' in formula:
-                    demographics += "Long-term residents. "
-                if 'CURRENT_AVM_VALUE' in formula:
-                    demographics += "Property value considerations. "
-                
-                # Generate psychographics from description and formula
-                psychographics = description
-                if 'Retired' in audience.get('name', '') or 'retirement' in description.lower():
-                    psychographics += " Planning for retirement lifestyle changes."
-                if 'equity' in description.lower():
-                    psychographics += " Focused on maximizing home equity value."
                 
                 profile = {
                     "name": audience.get('audience_name', audience.get('name', 'Custom Audience')),
                     "demographics": demographics or 'Custom segment',
-                    "psychographics": psychographics,
-                    "pain_points": [description, "Uncertain about home equity value", "Market timing concerns"],
-                    "desires": ["Maximize home value", "Smooth transaction", "Expert guidance"],
-                    "objections": ["Market timing concerns", "Transaction complexity", "Commission costs"],
-                    "unique_angle": f"{description}. Segment criteria: {formula}. Audience size: {count:,} qualified homeowners."
+                    "psychographics": description,
+                    "pain_points": [description, "Uncertain about home equity value"],
+                    "motivations": ["Maximize home value", "Expert guidance"],
+                    "communication_style": "Direct, benefit-focused",
+                    "decision_factors": ["Market timing", "Transaction ease", "Trust"]
                 }
             else:
-                return {"error": f"Segment ID '{segment_id}' not found in behavioral_audiences.json or past_clients.json"}
+                return {"error": f"Segment ID '{segment_id}' not found"}
         except FileNotFoundError as e:
-            return {"error": f"File not found: {str(e)}. Make sure past_clients.json exists."}
+            return {"error": f"File not found: {str(e)}"}
         except Exception as e:
             return {"error": f"Error loading segment: {str(e)}"}
+    
+    # Add custom prompt if provided
+    custom_instructions = ""
+    if custom_prompt:
+        custom_instructions = f"\n\n**CRITICAL: CUSTOM INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{custom_prompt}\n\nYou MUST follow these custom instructions exactly. They override the default segment profile where there's a conflict. Still apply Harry Dry's principles, but adapt the copy to match these specific instructions.\n"
     
     # Build comprehensive prompt with custom instructions at the very top
     prompt_intro = "You are an expert copywriter for Keyes Real Estate (49 years in business, $2.28B sold since 1976).\n\n"
@@ -257,131 +247,166 @@ def generate_campaign_content(segment_id, campaign_name="", custom_prompt=""):
 
 The user has provided specific custom instructions that MUST take absolute priority over everything else:
 
-"{custom_prompt}"
+\"{custom_prompt}\"
 
-These instructions override any conflicting guidance below. Follow them exactly while still applying the Harry Dry principles where they don't conflict.
+You MUST generate ALL copy (headline, body, questions, options) specifically for this exact situation. Ignore the default segment profile if it conflicts. The custom instructions describe the REAL audience you're writing for.
 
 ═══════════════════════════════════════════════════════════════
 
 """
     
-    prompt = prompt_intro + f"""
-Generate a complete email campaign for {profile['name']} using ALL 25 Harry Dry copywriting principles.
+    prompt = prompt_intro + f"""Generate a complete email campaign for this audience:
 
-TARGET AUDIENCE PROFILE:
-- Demographics: {profile['demographics']}
-- Psychographics: {profile['psychographics']}
-- Pain Points: {', '.join(profile['pain_points'])}
-- Desires: {', '.join(profile['desires'])}
-- Objections: {', '.join(profile['objections'])}
-- Unique Angle: {profile['unique_angle']}
+SEGMENT: {profile['name']}
+DEMOGRAPHICS: {profile['demographics']}
+PSYCHOGRAPHICS: {profile['psychographics']}
+PAIN POINTS: {', '.join(profile['pain_points'])}
+MOTIVATIONS: {', '.join(profile['motivations'])}
+COMMUNICATION STYLE: {profile['communication_style']}
+DECISION FACTORS: {', '.join(profile['decision_factors'])}
 
-KEYES COMPANY BACKGROUND:
-{KEYES_BACKGROUND}
-
-HARRY DRY'S 25 COPYWRITING PRINCIPLES TO APPLY:
+Apply ALL 25 Harry Dry Principles:
 {HARRY_DRY_PRINCIPLES}
 
-CRITICAL REQUIREMENTS:
-1. Apply ALL 25 principles - don't skip any
-2. Use "you/your" extensively (principle #10)
-3. Keep copy conversational and warm (principles #7, #14, #17)
-4. Tell a story (principle #20)
-5. Differentiate from competition (principles #22, #23)
-6. Make it feel personal, not corporate (principles #8, #9)
-7. Use contractions naturally (principle #14)
-8. Start some sentences with And, But, So (principle #12)
-9. Focus on transformation, not features (principle #4)
-10. Add warmth to CTA with reassurance (principle #1)
+Study this example email that perfectly applies these principles:
+{EXAMPLE_EMAIL}
 
-Generate the following fields in valid JSON format:
-
+Generate campaign content in this EXACT JSON format:
 {{
-  "subject": "Email subject line (60 chars max, conversational, benefit-driven)",
-  "headline": "Main hero headline (emotional hook, 8-12 words)",
-  "subheadline": "Supporting headline (adds context, 12-20 words)",
-  "callout_title": "Callout box title (3-5 words, attention-grabbing)",
-  "callout_main_text": "Main callout text (equity range or key number, bold and large)",
-  "callout_subtitle": "Callout subtitle (question or benefit, 8-12 words)",
-  "body_headline": "Body section headline (trust/credibility angle, 8-12 words)",
-  "body_copy": "Main body copy (2-3 paragraphs, 150-200 words total, conversational, story-driven, apply all Harry Dry principles)",
-  "cta_tagline": "CTA section tagline (action-oriented, 5-8 words)",
-  "cta_agent_message": "Personal message from agent (warm, reassuring, 15-25 words)",
-  "cta_button_text": "CTA button text (3-5 words, action verb)",
-  "q1_text": "Question 1 main text (relates to their priority/pain point)",
-  "q1_subtitle": "Question 1 subtitle (adds context or stakes)",
-  "q1_opt1_label": "Q1 Option 1 label",
-  "q1_opt1_desc": "Q1 Option 1 description",
-  "q1_opt2_label": "Q1 Option 2 label",
-  "q1_opt2_desc": "Q1 Option 2 description",
-  "q1_opt3_label": "Q1 Option 3 label",
-  "q1_opt3_desc": "Q1 Option 3 description",
-  "q2_text": "Question 2 main text (about their next move/goal)",
-  "q2_subtitle": "Question 2 subtitle",
-  "q2_opt1": "Q2 Option 1",
-  "q2_opt2": "Q2 Option 2",
-  "q2_opt3": "Q2 Option 3",
-  "q2_opt4": "Q2 Option 4",
-  "q2_opt5": "Q2 Option 5",
-  "q2_opt6": "Q2 Option 6"
+  "campaign_name": "Short descriptive campaign name (e.g., 'Spring 2025 Luxury Equity' or 'Q2 Cash Buyer Outreach')",
+  "subject_line": "Personalized subject with specific benefit (use merge tags like {{{{contact.firstname}}}}, include numbers)",
+  "headline": "Main headline (short, transformation-focused, conversational)",
+  "subheadline": "Supporting headline (builds on main headline, adds context)",
+  "body_headline": "Bold headline for body section (e.g., '98 Years of Trust. Your Equity, Maximized.')",
+  "body_copy": "MAXIMUM 2 sentences ONLY. Use contractions. Personal pronouns. Tell their story. Make it conversational. Keep total under 40 words. Wrap key insights (numbers, dollar amounts, important phrases) in <strong style='color: #004237;'>text</strong> tags for bold green highlighting.",
+  "callout_box": {{
+    "title": "Clear benefit statement",
+    "main_text": "Big number or transformation (e.g., $583k–$788k)",
+    "subtitle": "Emotional hook question or statement"
+  }},
+  "cta_button_text": "Action-oriented button text (warm, specific, e.g., 'GET MY EQUITY PLAN')",
+  "cta_agent_message": "Personal reassuring message from agent (e.g., 'Sarah will create your custom equity plan in 24 hours')",
+  "cta_tagline": "Italic tagline that removes friction (e.g., 'No sales pitch, just expert guidance')",
+  "form_questions": [
+    {{
+      "question": "What's next for you?",
+      "subtitle": "Pick what fits — we'll send you a plan",
+      "type": "radio",
+      "options": [
+        {{"label": "Option 1", "description": "Brief description"}},
+        {{"label": "Option 2", "description": "Brief description"}},
+        {{"label": "Option 3", "description": "Brief description"}},
+        {{"label": "Option 4", "description": "Brief description"}}
+      ]
+    }},
+    {{
+      "question": "What matters most to you?",
+      "subtitle": "Check all that apply",
+      "type": "checkbox",
+      "options": [
+        {{"label": "Option 1", "description": "Brief description"}},
+        {{"label": "Option 2", "description": "Brief description"}},
+        {{"label": "Option 3", "description": "Brief description"}},
+        {{"label": "Option 4", "description": "Brief description"}}
+      ]
+    }},
+    {{
+      "question": "When are you thinking about this?",
+      "subtitle": "No pressure — just helps us help you",
+      "type": "radio",
+      "options": [
+        {{"label": "Option 1", "description": "Brief description"}},
+        {{"label": "Option 2", "description": "Brief description"}},
+        {{"label": "Option 3", "description": "Brief description"}},
+        {{"label": "Option 4", "description": "Brief description"}}
+      ]
+    }}
+  ],
+  "why_section": {{
+    "title": "Why we get better results:",
+    "points": [
+      "Point 1 with specific benefit",
+      "Point 2 with specific benefit",
+      "Point 3 with specific benefit"
+    ]
+  }},
+  "testimonial": "One sentence testimonial from real client",
+  "explanation": "2-3 paragraphs explaining: (1) Why this copy works for this segment, (2) Which Harry Dry principles were applied and how, (3) What makes this different from generic real estate copy"
 }}
 
-Return ONLY the JSON object, no other text.
+IMPORTANT:
+- Use HubSpot merge tags: {{{{contact.firstname}}}}, {{{{contact.lastname}}}}, {{{{contact.email}}}}
+- Make it sound like it's from a real person, not a company
+- Every line must earn its space
+- Read-aloud test quality
+- Show transformation, not process
+- Don't make them think - use clear presets
+- Warm CTA with reassurance
+- Specific numbers and benefits for this segment
+- Tell THEIR story, not yours
 """
-    
-    # Make API call using requests
+
     try:
-        api_key = os.environ.get("OPENAI_API_KEY")
+        # Use direct API call instead of OpenAI client
+        api_key = os.environ.get('OPENAI_API_KEY')
         if not api_key:
             return {"error": "OpenAI API key not configured"}
         
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "gpt-4.1-mini",
+            "messages": [
+                {"role": "system", "content": "You are an expert copywriter who specializes in applying Harry Dry's principles to real estate marketing. You generate conversion-focused, segment-specific email campaigns."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.8,
+            "response_format": {"type": "json_object"}
+        }
+        
         response = requests.post(
             "https://api.openai.com/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "gpt-4.1-mini",
-                "messages": [
-                    {"role": "system", "content": "You are an expert copywriter who applies Harry Dry's principles."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0.8,
-                "max_tokens": 2000
-            },
+            headers=headers,
+            json=payload,
             timeout=60
         )
         
         if response.status_code != 200:
             return {"error": f"API error: {response.status_code} - {response.text}"}
         
-        result = response.json()
-        content_text = result['choices'][0]['message']['content'].strip()
-        
-        # Parse JSON response
-        # Remove markdown code blocks if present
-        if content_text.startswith('```'):
-            content_text = content_text.split('```')[1]
-            if content_text.startswith('json'):
-                content_text = content_text[4:]
-            content_text = content_text.strip()
-        
-        content = json.loads(content_text)
+        content = json.loads(response.json()['choices'][0]['message']['content'])
         return content
         
-    except requests.exceptions.Timeout:
-        return {"error": "Request timed out. Please try again."}
-    except requests.exceptions.RequestException as e:
-        return {"error": f"Network error: {str(e)}"}
-    except json.JSONDecodeError as e:
-        return {"error": f"Failed to parse AI response: {str(e)}"}
     except Exception as e:
-        return {"error": f"Unexpected error: {str(e)}"}
+        return {"error": str(e)}
 
 
 def get_segment_profile(segment_id):
-    """
-    Get the profile data for a specific segment
-    """
-    return SEGMENT_PROFILES.get(segment_id)
+    """Get detailed profile for a segment (static or behavioral)"""
+    # Check static segments first
+    if segment_id in SEGMENT_PROFILES:
+        return SEGMENT_PROFILES[segment_id]
+    
+    # Check behavioral audiences
+    try:
+        import json
+        with open('data/audiences.json', 'r') as f:
+            audiences = json.load(f)
+        
+        for aud in audiences:
+            if aud['id'] == segment_id:
+                # Convert behavioral audience to segment profile format
+                return {
+                    "name": aud['audience_name'],
+                    "demographics": aud.get('demographics', 'Custom behavioral audience'),
+                    "psychographics": aud.get('psychographics', aud.get('segment_summary', '')),
+                    "communication_style": aud.get('communication_style', 'Personalized based on behavior')
+                }
+    except:
+        pass
+    
+    return None
+
