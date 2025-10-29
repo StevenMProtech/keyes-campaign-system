@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create New Audience - The Keyes Company</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f7f3e5;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header {
+            background: linear-gradient(135deg, #004237 0%, #003329 100%);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 { font-size: 32px; }
+        .header p { margin-top: 8px; opacity: 0.9; }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f7f3e5;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #004237;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab:hover { background: #fcbfa7; }
+        .tab.active { background: #004237; color: white; }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .tab-content.active { display: block; }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            color: #004237;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="file"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #004237;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            background: #f7f3e5;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #004237;
+            background: #fcbfa7;
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        
+        .btn-primary {
+            background: #004237;
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: #003329;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .question-card {
+            background: #f7f3e5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .question-card h4 {
+            color: #004237;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Create New Audience</h1>
+                    <p>Build a custom audience using analytics or manual input</p>
+                </div>
+                <a href="/audiences" style="padding: 12px 24px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">← Back to Audiences</a>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('upload')">Upload Analytics</button>
+            <button class="tab" onclick="switchTab('manual')">Manual Form</button>
+        </div>
+        
+        <!-- Tab 1: Upload Analytics -->
+        <div id="upload-tab" class="tab-content active">
+            <h2 style="color: #004237; margin-bottom: 20px;">Upload Analytics Screenshots</h2>
+            <p style="color: #666; margin-bottom: 30px;">Upload demographic images, behavioral analytics, and/or visitor journey CSV. AI will analyze all data automatically. At least one file is required.</p>
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Audience Name *</label>
+                    <input type="text" name="audience_name" id="upload_name" required placeholder="e.g., High-Intent Luxury Browsers">
+                </div>
+                
+                <div class="form-group">
+                    <label>Demographic Analytics Image</label>
+                    <div class="upload-area" onclick="document.getElementById('demo_image').click()">
+                        <input type="file" id="demo_image" name="demographic_image" accept="image/*" onchange="showFileName(this, 'demo-filename')">
+                        <p style="color: #004237; font-weight: 600;">Click to upload demographic data</p>
+                        <p style="font-size: 13px; color: #666; margin-top: 8px;">Age, gender, income, location, occupation, etc.</p>
+                        <p id="demo-filename" style="margin-top: 10px; color: #004237; font-weight: 600;"></p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Behavioral/Pixel Analytics Image</label>
+                    <div class="upload-area" onclick="document.getElementById('pixel_image').click()">
+                        <input type="file" id="pixel_image" name="pixel_image" accept="image/*" onchange="showFileName(this, 'pixel-filename')">
+                        <p style="color: #004237; font-weight: 600;">Click to upload behavioral data</p>
+                        <p style="font-size: 13px; color: #666; margin-top: 8px;">Page views, time on site, engagement patterns, etc.</p>
+                        <p id="pixel-filename" style="margin-top: 10px; color: #004237; font-weight: 600;"></p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Visitor Journey CSV</label>
+                    <div class="upload-area" onclick="document.getElementById('csv_file').click()">
+                        <input type="file" id="csv_file" name="csv_file" accept=".csv" onchange="showFileName(this, 'csv-filename')">
+                        <p style="color: #004237; font-weight: 600;">Click to upload visitor journey data</p>
+                        <p style="font-size: 13px; color: #666; margin-top: 8px;">CSV with visitor IDs, pages visited, time on site, actions, etc.</p>
+                        <p id="csv-filename" style="margin-top: 10px; color: #004237; font-weight: 600;"></p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Additional Notes (Optional)</label>
+                    <textarea name="notes" placeholder="Any additional context about this audience..."></textarea>
+                    <div class="help-text">Add any relevant information not captured in the screenshots</div>
+                </div>
+                
+                <button type="submit" class="btn-primary">Analyze & Create Audience</button>
+            </form>
+        </div>
+        
+        <!-- Tab 2: Manual Form -->
+                <div id="manual-tab" class="tab-content">
+            <h2 style="color: #004237; margin-bottom: 20px;">Manual Audience Form</h2>
+            <p style="color: #666; margin-bottom: 30px;">Fill in the fields you know. All fields are optional except audience name.</p>
+            
+            <form id="manualForm">
+                <div class="form-group">
+                    <label>Audience Name *</label>
+                    <input type="text" name="audience_name" id="manual_name" required placeholder="e.g., Absentee Investors - Miami">
+                </div>
+                
+                <h3 style="color: #004237; margin: 30px 0 20px 0;">Demographics</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Age Range</label>
+                        <input type="text" name="age_range" placeholder="e.g., 45-65">
+                    </div>
+                    <div class="form-group">
+                        <label>Income Level</label>
+                        <input type="text" name="income_level" placeholder="e.g., $100k-$250k">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" placeholder="e.g., South Florida">
+                    </div>
+                    <div class="form-group">
+                        <label>Occupation</label>
+                        <input type="text" name="occupation" placeholder="e.g., Business owners, executives">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Family Status</label>
+                    <input type="text" name="family_status" placeholder="e.g., Married with children">
+                </div>
+                
+                <h3 style="color: #004237; margin: 30px 0 20px 0;">Real Estate Intent</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Primary Goal</label>
+                        <select name="primary_goal">
+                            <option value="">Select...</option>
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                            <option value="invest">Invest</option>
+                            <option value="downsize">Downsize</option>
+                            <option value="upgrade">Upgrade</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Timeline</label>
+                        <select name="timeline">
+                            <option value="">Select...</option>
+                            <option value="urgent">Urgent (0-3 months)</option>
+                            <option value="active">Active (3-6 months)</option>
+                            <option value="exploring">Exploring (6-12 months)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Price Range</label>
+                    <input type="text" name="price_range" placeholder="e.g., $500k-$1.5M">
+                </div>
+                
+                <h3 style="color: #004237; margin: 30px 0 20px 0;">Behavior & Engagement</h3>
+                <div class="form-group">
+                    <label>Research Habits</label>
+                    <textarea name="research_habits" placeholder="How do they research properties? (online, referrals, open houses, etc.)"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Engagement Level</label>
+                    <select name="engagement_level">
+                        <option value="">Select...</option>
+                        <option value="high">High (frequent visits, long sessions)</option>
+                        <option value="medium">Medium (occasional visits)</option>
+                        <option value="low">Low (casual browsing)</option>
+                    </select>
+                </div>
+                
+                <h3 style="color: #004237; margin: 30px 0 20px 0;">Psychographics</h3>
+                <div class="form-group">
+                    <label>Top Priorities</label>
+                    <textarea name="priorities" placeholder="What matters most to them? (price, location, timing, schools, etc.)"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Pain Points & Concerns</label>
+                    <textarea name="pain_points" placeholder="What worries them? What obstacles are they facing?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Motivations</label>
+                    <textarea name="motivations" placeholder="What drives their decisions?"></textarea>
+                </div>
+                
+                <h3 style="color: #004237; margin: 30px 0 20px 0;">Communication Preferences</h3>
+                <div class="form-group">
+                    <label>Preferred Tone</label>
+                    <select name="tone">
+                        <option value="">Select...</option>
+                        <option value="professional">Professional & data-driven</option>
+                        <option value="friendly">Friendly & consultative</option>
+                        <option value="urgent">Urgent & action-oriented</option>
+                        <option value="emotional">Emotional & storytelling</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea name="notes" placeholder="Any other relevant information..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">Create Audience</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function showFileName(input, displayId) {
+            const fileName = input.files[0]?.name;
+            if (fileName) {
+                document.getElementById(displayId).textContent = 'Selected: ' + fileName;
+            }
+        }
+        
+        // Handle upload form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.textContent = 'Analyzing...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/create-audience-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Audience created successfully!');
+                    window.location.href = '/audiences';
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error creating audience: ' + error.message);
+            } finally {
+                btn.textContent = 'Analyze & Create Audience';
+                btn.disabled = false;
+            }
+        });
+        
+        // Handle manual form submission
+        document.getElementById('manualForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.textContent = 'Creating...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/create-audience-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Audience created successfully!');
+                    window.location.href = '/audiences';
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error creating audience: ' + error.message);
+            } finally {
+                btn.textContent = 'Create Audience';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+
