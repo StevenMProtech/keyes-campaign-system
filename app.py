@@ -3516,19 +3516,21 @@ def upload_client_data():
         if not client_file:
             return '<script>alert("No file uploaded"); window.location.href="/audiences/past-clients";</script>'
         
-        # Upload to DigitalOcean Spaces for secure storage
+        # Read file content once
         filename = client_file.filename
-        file_stream = io.BytesIO(client_file.read())
+        file_content = client_file.read()
+        
+        # Upload to DigitalOcean Spaces for secure storage
+        file_stream = io.BytesIO(file_content)
         upload_result = upload_file_to_spaces(file_stream, filename)
         
         if not upload_result['success']:
             return f'<script>alert("Upload failed: {upload_result["message"]}"); window.location.href="/audiences/past-clients";</script>'
         
         # Also save locally for processing (temporary)
-        file_stream.seek(0)
         filepath = f'uploaded_client_data.{filename.split(".")[-1]}'
         with open(filepath, 'wb') as f:
-            f.write(file_stream.read())
+            f.write(file_content)
         
         # Read file based on extension
         if filename.endswith('.csv'):
