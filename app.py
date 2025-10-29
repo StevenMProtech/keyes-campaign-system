@@ -2996,6 +2996,7 @@ def past_clients():
             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;">
                 <a href="/campaign/new?segment={seg['id']}" style="padding: 10px 20px; background: #004237; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">Generate Campaign</a>
                 <a href="/audiences/past-clients/{seg['id']}/analytics" style="padding: 10px 20px; background: #fcbfa7; color: #004237; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">View Analytics</a>
+                <a href="/audiences/past-clients/{seg['id']}/edit" style="padding: 10px 20px; background: #006652; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">Edit Formula</a>
             </div>
         </div>
         """
@@ -3110,6 +3111,196 @@ def past_clients():
 </body>
 </html>
 """
+
+
+@app.route('/audiences/past-clients/<segment_id>/edit', methods=['GET', 'POST'])
+def edit_past_client_segment(segment_id):
+    """Edit a past client segment formula"""
+    import json
+    from formula_evaluator import validate_formula, get_available_fields
+    
+    # Load segments
+    with open('past_clients.json', 'r') as f:
+        segments = json.load(f)
+    
+    segment = next((s for s in segments if s['id'] == segment_id), None)
+    if not segment:
+        return "Segment not found", 404
+    
+    if request.method == 'POST':
+        # Update formula
+        new_formula = request.form.get('formula', '').strip()
+        new_name = request.form.get('name', '').strip()
+        new_description = request.form.get('description', '').strip()
+        
+        # Validate formula
+        validation = validate_formula(new_formula)
+        if not validation['valid']:
+            return f'<script>alert("Invalid formula: {validation["message"]}"); window.history.back();</script>'
+        
+        # Update segment
+        segment['formula'] = new_formula
+        if new_name:
+            segment['name'] = new_name
+        if new_description:
+            segment['description'] = new_description
+        
+        # Save updated segments
+        with open('past_clients.json', 'w') as f:
+            json.dump(segments, f, indent=2)
+        
+        return '<script>alert("Segment updated successfully!"); window.location.href="/audiences/past-clients";</script>'
+    
+    # GET request - show edit form
+    fields = get_available_fields()
+    fields_html = ""
+    for field in fields:
+        fields_html += f'<div style="margin-bottom: 8px;"><strong>{field["name"]}</strong> ({field["type"]}): {field["description"]}</div>'
+    
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Segment: {segment['name']}</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f7f3e5;
+            padding: 40px 20px;
+        }}
+        .container {{ max-width: 900px; margin: 0 auto; }}
+        .header {{
+            background: linear-gradient(135deg, #004237 0%, #003329 100%);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }}
+        .card {{
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }}
+        .form-group {{
+            margin-bottom: 24px;
+        }}
+        label {{
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #004237;
+        }}
+        input[type="text"], textarea {{
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }}
+        input[type="text"]:focus, textarea:focus {{
+            outline: none;
+            border-color: #004237;
+        }}
+        textarea {{
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            resize: vertical;
+        }}
+        .btn {{
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }}
+        .btn-primary {{
+            background: #004237;
+            color: white;
+        }}
+        .btn-primary:hover {{
+            background: #003329;
+        }}
+        .btn-secondary {{
+            background: #fcbfa7;
+            color: #004237;
+            margin-left: 10px;
+        }}
+        .btn-secondary:hover {{
+            background: #fda67a;
+        }}
+        .help-box {{
+            background: #f0f8ff;
+            border-left: 4px solid #004237;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }}
+        .help-box h4 {{
+            color: #004237;
+            margin-bottom: 12px;
+        }}
+        .field-list {{
+            font-size: 13px;
+            color: #666;
+            line-height: 1.8;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/audiences/past-clients" style="color: white; text-decoration: none; font-size: 24px; opacity: 0.8; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">←</a>
+            <h1>Edit Segment</h1>
+            <p>Modify the formula and settings for this audience segment</p>
+        </div>
+        
+        <div class="card">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="name">Segment Name</label>
+                    <input type="text" id="name" name="name" value="{segment['name']}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="2" required>{segment['description']}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formula">Formula</label>
+                    <textarea id="formula" name="formula" rows="4" required>{segment['formula']}</textarea>
+                    <div class="help-box">
+                        <h4>Formula Syntax</h4>
+                        <p style="margin-bottom: 12px;">Use logical operators: <code>and</code>, <code>or</code>, <code>>=</code>, <code><=</code>, <code>!=</code></p>
+                        <p style="margin-bottom: 12px;"><strong>Example:</strong> <code>Age >= 60 and Equity >= 200000</code></p>
+                        <p style="margin-bottom: 12px;"><strong>BETWEEN syntax:</strong> <code>Age BETWEEN 30 AND 45</code></p>
+                        <div class="field-list">
+                            <h4 style="margin-top: 16px; margin-bottom: 8px;">Available Fields:</h4>
+                            {fields_html}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="/audiences/past-clients" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
 
 @app.route('/audiences/past-clients/<segment_id>/analytics')
 def past_client_analytics(segment_id):
@@ -3318,15 +3509,26 @@ def upload_client_data():
     try:
         import pandas as pd
         from datetime import datetime
+        from storage import upload_file_to_spaces
+        import io
         
         client_file = request.files.get('client_file')
         if not client_file:
             return '<script>alert("No file uploaded"); window.location.href="/audiences/past-clients";</script>'
         
-        # Save uploaded file
+        # Upload to DigitalOcean Spaces for secure storage
         filename = client_file.filename
+        file_stream = io.BytesIO(client_file.read())
+        upload_result = upload_file_to_spaces(file_stream, filename)
+        
+        if not upload_result['success']:
+            return f'<script>alert("Upload failed: {upload_result["message"]}"); window.location.href="/audiences/past-clients";</script>'
+        
+        # Also save locally for processing (temporary)
+        file_stream.seek(0)
         filepath = f'uploaded_client_data.{filename.split(".")[-1]}'
-        client_file.save(filepath)
+        with open(filepath, 'wb') as f:
+            f.write(file_stream.read())
         
         # Read file based on extension
         if filename.endswith('.csv'):
@@ -3366,62 +3568,28 @@ def upload_client_data():
         except:
             df['MEDIAN_HOME_PRICE'] = 500000  # Default fallback
         
-        # Calculate counts for each segment
+        # Calculate counts for each segment using dynamic formula evaluation
+        from formula_evaluator import evaluate_formula
+        
+        # Add calculated columns
+        df['MEDIAN_SQFT'] = 2000  # Default median SQFT
+        if 'CURRENT_SALE_RECORDING_DATE' in df.columns:
+            df['SALE_YEAR'] = pd.to_datetime(df['CURRENT_SALE_RECORDING_DATE'], errors='coerce').dt.year
+        df['EQUITY_COMFORT_SCORE'] = df['EQUITY'] / df['MEDIAN_HOME_PRICE']
+        
         for seg in segments:
-            count = 0
-            seg_id = seg['id']
-            
             try:
-                if seg_id == '65-not-retired':
-                    # Age >= 60 and not retired (we don't have employment status, so count all 60+)
-                    count = len(df[df['AGE'] >= 60])
-                
-                elif seg_id == 'growing-families':
-                    # YearsOwned >= 6 and Age 30-45
-                    count = len(df[(df['LENGTH_OF_RESIDENCE'] >= 6) & (df['AGE'] >= 30) & (df['AGE'] <= 45)])
-                
-                elif seg_id == 'trapped-movers':
-                    # Equity >= $200K and Rate >= 6.5%
-                    count = len(df[(df['EQUITY'] >= 200000) & (df['CURRENT_SALE_MTG_1_INT_RATE'] >= 6.5)])
-                
-                elif seg_id == 'all-cash-seniors':
-                    # No mortgage and Age >= 65
-                    count = len(df[(df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'] == 0) & (df['AGE'] >= 65)])
-                
-                elif seg_id == 'large-home-owners':
-                    # Homes >= 125% of ZIP median SQFT (using 2000 sqft as median estimate)
-                    median_sqft = 2000
-                    count = len(df[df['SUM_BUILDING_SQFT'] >= median_sqft * 1.25])
-                
-                elif seg_id == 'cash-renters':
-                    # Sold 2020-2022 (check CURRENT_SALE_RECORDING_DATE)
-                    if 'CURRENT_SALE_RECORDING_DATE' in df.columns:
-                        df['SALE_YEAR'] = pd.to_datetime(df['CURRENT_SALE_RECORDING_DATE'], errors='coerce').dt.year
-                        count = len(df[(df['SALE_YEAR'] >= 2020) & (df['SALE_YEAR'] <= 2022)])
-                
-                elif seg_id == 'warn-list':
-                    # Placeholder - requires external WARN data
+                formula = seg.get('formula', '')
+                if formula:
+                    count = evaluate_formula(df, formula)
+                else:
                     count = 0
-                
-                elif seg_id == 'high-intent-visitors':
-                    # Placeholder - requires website behavior data
-                    count = 0
-                
-                elif seg_id == 'equity-comfort-tiers':
-                    # Equity / MedianHomePrice >= 0.5
-                    df['EQUITY_COMFORT_SCORE'] = df['EQUITY'] / df['MEDIAN_HOME_PRICE']
-                    count = len(df[df['EQUITY_COMFORT_SCORE'] >= 0.5])
-                
-                elif seg_id == 'young-cash-owners':
-                    # Age < 45 and no mortgage
-                    count = len(df[(df['AGE'] < 45) & (df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'] == 0)])
-            
+                seg['count'] = count
             except Exception as e:
-                print(f"Error calculating {seg_id}: {e}")
+                print(f"Error calculating {seg['id']}: {e}")
                 import traceback
                 traceback.print_exc()
-            
-            seg['count'] = count
+                seg['count'] = 0
         
         # Save updated counts
         with open('past_clients.json', 'w') as f:
@@ -3431,6 +3599,25 @@ def upload_client_data():
     
     except Exception as e:
         return f'<script>alert("Error processing file: {str(e)}"); window.location.href="/audiences/past-clients";</script>'
+
+@app.route('/api/manage-files')
+def manage_files():
+    """View and manage uploaded files in DigitalOcean Spaces"""
+    from storage import list_files_in_spaces, delete_file_from_spaces
+    
+    # Handle delete request
+    if request.args.get('delete'):
+        key = request.args.get('delete')
+        result = delete_file_from_spaces(key)
+        return jsonify(result)
+    
+    # List all uploaded files
+    files = list_files_in_spaces()
+    
+    return jsonify({
+        'success': True,
+        'files': files
+    })
 
 @app.route('/api/analyze-audience', methods=['POST'])
 @app.route('/api/create-audience-upload', methods=['POST'])
