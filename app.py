@@ -109,8 +109,12 @@ def index():
     for camp in campaigns:
         campaign_options += f'<option value="{camp["id"]}">{camp["name"]}</option>'
     
-    # Email template removed - not needed for dashboard
-    email_html = "<!-- Email template placeholder -->"
+    # Load email template
+    try:
+        with open('email_template.html', 'r') as f:
+            email_html = f.read()
+    except FileNotFoundError:
+        email_html = "<!-- Email template not found -->"
     
     return f"""<!DOCTYPE html>
 <html>
