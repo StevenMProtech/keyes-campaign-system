@@ -7,9 +7,15 @@ to create targetable audience segments and campaign recommendations
 import os
 import json
 import base64
-from openai import OpenAI
+import requests
 
-client = OpenAI()
+def call_openai(messages, model="gpt-4o-mini", temperature=0.7, max_tokens=2000):
+    api_key = os.environ.get("OPENAI_API_KEY")
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    data = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data, timeout=30)
+    response.raise_for_status()
+    return response.json()
 
 AUDIENCES_FILE = 'behavioral_audiences.json'
 
@@ -78,22 +84,19 @@ Provide a comprehensive analysis in JSON format:
 
 Be specific and data-driven based on the CSV data provided."""
 
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+    response = call_openai(
         messages=[
             {"role": "system", "content": "You are an expert data analyst specializing in visitor behavior analysis and audience segmentation."},
             {"role": "user", "content": prompt}
-        ],
-        temperature=0.7,
-        max_tokens=2000
+        ], temperature=0.7, max_tokens=2000
     )
     
     # Parse JSON response
     try:
-        result = json.loads(response.choices[0].message.content)
+        result = json.loads(response['choices'][0]['message']['content'])
         return result
     except:
-        return {"error": "Failed to parse AI response", "raw": response.choices[0].message.content}
+        return {"error": "Failed to parse AI response", "raw": response['choices'][0]['message']['content']}
 
 def analyze_audience_screenshots(demographic_image_path, pixel_image_path, audience_name=""):
     """
@@ -199,8 +202,7 @@ Analyze BOTH images carefully and extract ALL visible data. Then create a compre
 **CRITICAL:** Return ONLY valid JSON. No markdown, no code blocks, no explanations. Just the JSON object."""
 
     # Call OpenAI Vision API
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+    response = call_openai(
         messages=[
             {
                 "role": "user",
@@ -222,13 +224,11 @@ Analyze BOTH images carefully and extract ALL visible data. Then create a compre
                     }
                 ]
             }
-        ],
-        max_tokens=2000,
-        temperature=0.7
+        ], max_tokens=2000, temperature=0.7
     )
     
     # Extract and parse response
-    content = response.choices[0].message.content.strip()
+    content = response['choices'][0]['message']['content'].strip()
     
     # Remove markdown code blocks if present
     if content.startswith('```'):
@@ -390,14 +390,11 @@ Apply Harry Dry's 25 copywriting principles:
   "explanation": "Why this copy works for THIS specific audience based on their behavior and demographics"
 }}"""
 
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=1500,
-        temperature=0.8
+    response = call_openai(
+        messages=[{"role": "user", "content": prompt}], max_tokens=1500, temperature=0.8
     )
     
-    content = response.choices[0].message.content.strip()
+    content = response['choices'][0]['message']['content'].strip()
     
     # Remove markdown if present
     if content.startswith('```'):
