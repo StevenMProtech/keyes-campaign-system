@@ -3485,56 +3485,74 @@ def create_past_client_segment():
                 new_segment['count'] = count
                 
                 # Calculate analytics for AI generator
+                print(f"[ANALYTICS] Starting analytics calculation for {count} matching records")
                 # Filter to matching records only
                 if formula and count > 0:
                     from formula_evaluator import parse_formula
                     try:
                         query = parse_formula(formula)
+                        print(f"[ANALYTICS] Parsed query: {query}")
                         matching_df = merged_df.query(query)
+                        print(f"[ANALYTICS] Filtered to {len(matching_df)} records")
                     except Exception as e:
-                        print(f"Analytics query error: {e}")
+                        print(f"[ANALYTICS ERROR] Query failed: {e}")
                         matching_df = merged_df
-
                 else:
                     matching_df = merged_df
                 
                 # Age distribution
-                if 'AGE' in matching_df.columns:
-                    age_data = matching_df['AGE'].dropna()
-                    if len(age_data) > 0:
-                        new_segment['median_age'] = int(age_data.median())
-                        new_segment['age_distribution'] = {
-                            '25-34': int(((age_data >= 25) & (age_data < 35)).sum()),
-                            '35-44': int(((age_data >= 35) & (age_data < 45)).sum()),
-                            '45-54': int(((age_data >= 45) & (age_data < 55)).sum()),
-                            '55-64': int(((age_data >= 55) & (age_data < 65)).sum()),
-                            '65+': int((age_data >= 65).sum())
-                        }
+                try:
+                    if 'AGE' in matching_df.columns:
+                        age_data = matching_df['AGE'].dropna()
+                        if len(age_data) > 0:
+                            new_segment['median_age'] = int(age_data.median())
+                            new_segment['age_distribution'] = {
+                                '25-34': int(((age_data >= 25) & (age_data < 35)).sum()),
+                                '35-44': int(((age_data >= 35) & (age_data < 45)).sum()),
+                                '45-54': int(((age_data >= 45) & (age_data < 55)).sum()),
+                                '55-64': int(((age_data >= 55) & (age_data < 65)).sum()),
+                                '65+': int((age_data >= 65).sum())
+                            }
+                            print(f"[ANALYTICS] ✓ Age: median={new_segment['median_age']}")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Age calculation failed: {e}")
                 
                 # Equity distribution
-                if 'EQUITY' in matching_df.columns:
-                    equity_data = matching_df['EQUITY'].dropna()
-                    if len(equity_data) > 0:
-                        new_segment['median_equity'] = int(equity_data.median())
-                        new_segment['equity_distribution'] = {
-                            '<100k': int((equity_data < 100000).sum()),
-                            '100k-250k': int(((equity_data >= 100000) & (equity_data < 250000)).sum()),
-                            '250k-500k': int(((equity_data >= 250000) & (equity_data < 500000)).sum()),
-                            '500k-1M': int(((equity_data >= 500000) & (equity_data < 1000000)).sum()),
-                            '1M+': int((equity_data >= 1000000).sum())
-                        }
+                try:
+                    if 'EQUITY' in matching_df.columns:
+                        equity_data = matching_df['EQUITY'].dropna()
+                        if len(equity_data) > 0:
+                            new_segment['median_equity'] = int(equity_data.median())
+                            new_segment['equity_distribution'] = {
+                                '<100k': int((equity_data < 100000).sum()),
+                                '100k-250k': int(((equity_data >= 100000) & (equity_data < 250000)).sum()),
+                                '250k-500k': int(((equity_data >= 250000) & (equity_data < 500000)).sum()),
+                                '500k-1M': int(((equity_data >= 500000) & (equity_data < 1000000)).sum()),
+                                '1M+': int((equity_data >= 1000000).sum())
+                            }
+                            print(f"[ANALYTICS] ✓ Equity: median=${new_segment['median_equity']:,}")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Equity calculation failed: {e}")
                 
                 # Home value distribution
-                if 'CURRENT_AVM_VALUE' in matching_df.columns:
-                    value_data = matching_df['CURRENT_AVM_VALUE'].dropna()
-                    if len(value_data) > 0:
-                        new_segment['median_home_value'] = int(value_data.median())
+                try:
+                    if 'CURRENT_AVM_VALUE' in matching_df.columns:
+                        value_data = matching_df['CURRENT_AVM_VALUE'].dropna()
+                        if len(value_data) > 0:
+                            new_segment['median_home_value'] = int(value_data.median())
+                            print(f"[ANALYTICS] ✓ Home value: ${new_segment['median_home_value']:,}")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Home value calculation failed: {e}")
                 
                 # Length of residence
-                if 'LENGTH_OF_RESIDENCE' in matching_df.columns:
-                    lor_data = matching_df['LENGTH_OF_RESIDENCE'].dropna()
-                    if len(lor_data) > 0:
-                        new_segment['median_length_of_residence'] = int(lor_data.median())
+                try:
+                    if 'LENGTH_OF_RESIDENCE' in matching_df.columns:
+                        lor_data = matching_df['LENGTH_OF_RESIDENCE'].dropna()
+                        if len(lor_data) > 0:
+                            new_segment['median_length_of_residence'] = int(lor_data.median())
+                            print(f"[ANALYTICS] ✓ Length of residence: {new_segment['median_length_of_residence']} years")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Length of residence calculation failed: {e}")
                 
             except Exception as e:
                 return f'<script>alert("Error calculating count: {str(e)}"); window.history.back();</script>'
@@ -3821,54 +3839,74 @@ def edit_past_client_segment(segment_id):
                 segment['count'] = count
                 
                 # Calculate analytics for AI generator
+                print(f"[ANALYTICS] Starting analytics calculation for {count} matching records")
                 # Filter to matching records only
                 if formula and count > 0:
                     from formula_evaluator import parse_formula
                     try:
                         query = parse_formula(formula)
+                        print(f"[ANALYTICS] Parsed query: {query}")
                         matching_df = merged_df.query(query)
-                    except:
+                        print(f"[ANALYTICS] Filtered to {len(matching_df)} records")
+                    except Exception as e:
+                        print(f"[ANALYTICS ERROR] Query failed: {e}")
                         matching_df = merged_df
                 else:
                     matching_df = merged_df
                 
                 # Age distribution
-                if 'AGE' in matching_df.columns:
-                    age_data = matching_df['AGE'].dropna()
-                    if len(age_data) > 0:
-                        segment['median_age'] = int(age_data.median())
-                        segment['age_distribution'] = {
-                            '25-34': int(((age_data >= 25) & (age_data < 35)).sum()),
-                            '35-44': int(((age_data >= 35) & (age_data < 45)).sum()),
-                            '45-54': int(((age_data >= 45) & (age_data < 55)).sum()),
-                            '55-64': int(((age_data >= 55) & (age_data < 65)).sum()),
-                            '65+': int((age_data >= 65).sum())
-                        }
+                try:
+                    if 'AGE' in matching_df.columns:
+                        age_data = matching_df['AGE'].dropna()
+                        if len(age_data) > 0:
+                            segment['median_age'] = int(age_data.median())
+                            segment['age_distribution'] = {
+                                '25-34': int(((age_data >= 25) & (age_data < 35)).sum()),
+                                '35-44': int(((age_data >= 35) & (age_data < 45)).sum()),
+                                '45-54': int(((age_data >= 45) & (age_data < 55)).sum()),
+                                '55-64': int(((age_data >= 55) & (age_data < 65)).sum()),
+                                '65+': int((age_data >= 65).sum())
+                            }
+                            print(f"[ANALYTICS] ✓ Age: median={segment['median_age']}")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Age calculation failed: {e}")
                 
                 # Equity distribution
-                if 'EQUITY' in matching_df.columns:
-                    equity_data = matching_df['EQUITY'].dropna()
-                    if len(equity_data) > 0:
-                        segment['median_equity'] = int(equity_data.median())
-                        segment['equity_distribution'] = {
-                            '<100k': int((equity_data < 100000).sum()),
-                            '100k-250k': int(((equity_data >= 100000) & (equity_data < 250000)).sum()),
-                            '250k-500k': int(((equity_data >= 250000) & (equity_data < 500000)).sum()),
-                            '500k-1M': int(((equity_data >= 500000) & (equity_data < 1000000)).sum()),
-                            '1M+': int((equity_data >= 1000000).sum())
-                        }
+                try:
+                    if 'EQUITY' in matching_df.columns:
+                        equity_data = matching_df['EQUITY'].dropna()
+                        if len(equity_data) > 0:
+                            segment['median_equity'] = int(equity_data.median())
+                            segment['equity_distribution'] = {
+                                '<100k': int((equity_data < 100000).sum()),
+                                '100k-250k': int(((equity_data >= 100000) & (equity_data < 250000)).sum()),
+                                '250k-500k': int(((equity_data >= 250000) & (equity_data < 500000)).sum()),
+                                '500k-1M': int(((equity_data >= 500000) & (equity_data < 1000000)).sum()),
+                                '1M+': int((equity_data >= 1000000).sum())
+                            }
+                            print(f"[ANALYTICS] ✓ Equity: median=${segment['median_equity']:,}")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Equity calculation failed: {e}")
                 
                 # Home value distribution
-                if 'CURRENT_AVM_VALUE' in matching_df.columns:
-                    value_data = matching_df['CURRENT_AVM_VALUE'].dropna()
-                    if len(value_data) > 0:
-                        segment['median_home_value'] = int(value_data.median())
+                try:
+                    if 'CURRENT_AVM_VALUE' in matching_df.columns:
+                        value_data = matching_df['CURRENT_AVM_VALUE'].dropna()
+                        if len(value_data) > 0:
+                            segment['median_home_value'] = int(value_data.median())
+                            print(f"[ANALYTICS] ✓ Home value: ${segment['median_home_value']:,}")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Home value calculation failed: {e}")
                 
                 # Length of residence
-                if 'LENGTH_OF_RESIDENCE' in matching_df.columns:
-                    lor_data = matching_df['LENGTH_OF_RESIDENCE'].dropna()
-                    if len(lor_data) > 0:
-                        segment['median_length_of_residence'] = int(lor_data.median())
+                try:
+                    if 'LENGTH_OF_RESIDENCE' in matching_df.columns:
+                        lor_data = matching_df['LENGTH_OF_RESIDENCE'].dropna()
+                        if len(lor_data) > 0:
+                            segment['median_length_of_residence'] = int(lor_data.median())
+                            print(f"[ANALYTICS] ✓ Length of residence: {segment['median_length_of_residence']} years")
+                except Exception as e:
+                    print(f"[ANALYTICS ERROR] Length of residence calculation failed: {e}")
                 
                 # Save
                 with open('past_clients.json', 'w') as f:
@@ -4089,9 +4127,33 @@ def past_client_analytics(segment_id):
     if not segment:
         return "Segment not found", 404
     
-    # Load client data
+    # Load client data from selected files
     try:
-        df = pd.read_csv('uploaded_client_data.csv')
+        from storage import download_file_from_spaces
+        from formula_evaluator import parse_formula
+        import os
+        
+        selected_files = segment.get('selected_files', [])
+        if not selected_files:
+            return "No files selected for this segment. Please edit the segment and select files.", 400
+        
+        # Download and merge selected files
+        dfs = []
+        for file_key in selected_files:
+            local_path = f'/tmp/{file_key.split("/")[-1]}'
+            result = download_file_from_spaces(file_key, local_path)
+            if result['success']:
+                if local_path.endswith('.csv'):
+                    file_df = pd.read_csv(local_path)
+                else:
+                    file_df = pd.read_excel(local_path)
+                dfs.append(file_df)
+                os.remove(local_path)
+        
+        if not dfs:
+            return "Could not load any files for this segment", 500
+        
+        df = pd.concat(dfs, ignore_index=True)
         
         # Clean data
         df['AGE'] = pd.to_numeric(df['AGE'], errors='coerce')
@@ -4102,22 +4164,15 @@ def past_client_analytics(segment_id):
         df['SUM_BUILDING_SQFT'] = pd.to_numeric(df['SUM_BUILDING_SQFT'], errors='coerce')
         df['EQUITY'] = df['CURRENT_AVM_VALUE'] - df['CURRENT_SALE_MTG_1_LOAN_AMOUNT']
         
-        # Filter to segment
-        if segment_id == '65-not-retired':
-            segment_df = df[df['AGE'] >= 60]
-        elif segment_id == 'growing-families':
-            segment_df = df[(df['LENGTH_OF_RESIDENCE'] >= 6) & (df['AGE'] >= 30) & (df['AGE'] <= 45)]
-        elif segment_id == 'trapped-movers':
-            segment_df = df[(df['EQUITY'] >= 200000) & (df['CURRENT_SALE_MTG_1_INT_RATE'] >= 6.5)]
-        elif segment_id == 'all-cash-seniors':
-            segment_df = df[(df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'] == 0) & (df['AGE'] >= 65)]
-        elif segment_id == 'large-home-owners':
-            segment_df = df[df['SUM_BUILDING_SQFT'] >= 2500]
-        elif segment_id == 'cash-renters':
-            df['SALE_YEAR'] = pd.to_datetime(df['CURRENT_SALE_RECORDING_DATE'], errors='coerce').dt.year
-            segment_df = df[(df['SALE_YEAR'] >= 2020) & (df['SALE_YEAR'] <= 2022)]
-        elif segment_id == 'young-cash-owners':
-            segment_df = df[(df['AGE'] < 45) & (df['CURRENT_SALE_MTG_1_LOAN_AMOUNT'] == 0)]
+        # Filter to segment using formula
+        formula = segment.get('formula', '')
+        if formula:
+            try:
+                query = parse_formula(formula)
+                segment_df = df.query(query)
+            except Exception as e:
+                print(f"Error applying formula: {e}")
+                segment_df = df
         else:
             segment_df = df
         
