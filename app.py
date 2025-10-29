@@ -105,9 +105,19 @@ def get_template(template_id):
 
 @app.route('/test')
 def test_page():
-    with open('email_template.html', 'r') as f:
-        email_html = f.read()
-    return email_html
+    from storage import download_file_from_spaces
+    import os
+    
+    temp_path = '/tmp/email_template_test.html'
+    result = download_file_from_spaces('email_template.html', temp_path)
+    
+    if result['success']:
+        with open(temp_path, 'r') as f:
+            email_html = f.read()
+        os.remove(temp_path)
+        return email_html
+    else:
+        return "<!-- Email template not found in cloud storage -->", 404
 
 @app.route('/')
 def index():
@@ -124,12 +134,19 @@ def index():
     for camp in campaigns:
         campaign_options += f'<option value="{camp["id"]}">{camp["name"]}</option>'
     
-    # Load email template
-    try:
-        with open('email_template.html', 'r') as f:
+    # Load email template from Spaces
+    from storage import download_file_from_spaces
+    import os
+    
+    temp_path = '/tmp/email_template_index.html'
+    result = download_file_from_spaces('email_template.html', temp_path)
+    
+    if result['success']:
+        with open(temp_path, 'r') as f:
             email_html = f.read()
-    except FileNotFoundError:
-        email_html = "<!-- Email template not found -->"
+        os.remove(temp_path)
+    else:
+        email_html = "<!-- Email template not found in cloud storage -->"
     
     return f"""<!DOCTYPE html>
 <html>
@@ -579,21 +596,58 @@ def submit_form():
 @app.route('/template/edit', methods=['GET', 'POST'])
 def edit_template():
     """Edit the email template HTML"""
+    from storage import upload_file_to_spaces, download_file_from_spaces
+    import os
+    
+    TEMPLATE_KEY = 'email_template.html'
+    
     if request.method == 'POST':
-        # Save the template
+        # Save the template to DigitalOcean Spaces
         new_html = request.form.get('html_content', '')
         
-        with open('email_template.html', 'w') as f:
+        # Write to temp file
+        temp_path = '/tmp/email_template.html'
+        with open(temp_path, 'w') as f:
             f.write(new_html)
         
-        return '<script>alert("Template saved successfully!"); window.location.href="/template/edit";</script>'
+        # Upload to Spaces
+        result = upload_file_to_spaces(temp_path, TEMPLATE_KEY)
+        os.remove(temp_path)
+        
+        if result['success']:
+            return '<script>alert("Template saved successfully to cloud storage!"); window.location.href="/template/edit";</script>'
+        else:
+            return f'<script>alert("Error saving template: {result.get("error", "Unknown error")}"); window.history.back();</script>'
     
-    # Load current template
-    try:
-        with open('email_template.html', 'r') as f:
+    # Load current template from DigitalOcean Spaces
+    temp_path = '/tmp/email_template_download.html'
+    result = download_file_from_spaces(TEMPLATE_KEY, temp_path)
+    
+    if result['success']:
+        with open(temp_path, 'r') as f:
             current_html = f.read()
-    except FileNotFoundError:
-        current_html = "<!-- No template found -->"
+        os.remove(temp_path)
+    else:
+        # Fallback to default template if not found in Spaces
+        current_html = """<!-- Default Email Template -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyes Real Estate</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Georgia, serif;">
+    <div style="max-width: 600px; margin: 0 auto; background: #f7f3e5; padding: 40px 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #004237; font-size: 48px; margin: 0;">Your Fresh Start, Starts Here</h1>
+        </div>
+        <div style="background: white; padding: 40px; border-radius: 8px;">
+            <p style="font-size: 16px; line-height: 1.6; color: #333;">Your content here...</p>
+        </div>
+    </div>
+</body>
+</html>"""
     
     # Escape for textarea
     import html
@@ -2189,11 +2243,21 @@ def generate_email(campaign_id):
 </body>
 </html>'''
     
-    # Save to email_template.html
-    with open('email_template.html', 'w') as f:
+    # Save to DigitalOcean Spaces
+    from storage import upload_file_to_spaces
+    import os
+    
+    temp_path = '/tmp/email_template_generated.html'
+    with open(temp_path, 'w') as f:
         f.write(email_html)
     
-    return '<script>alert("Email HTML generated successfully! Check email_template.html"); window.location.href="/campaign/' + campaign_id + '/edit";</script>'
+    result = upload_file_to_spaces(temp_path, 'email_template.html')
+    os.remove(temp_path)
+    
+    if result['success']:
+        return '<script>alert("Email HTML generated and saved to cloud storage!"); window.location.href="/campaign/' + campaign_id + '/edit";</script>'
+    else:
+        return '<script>alert("Email HTML generated but failed to save to cloud storage"); window.location.href="/campaign/' + campaign_id + '/edit";</script>'
 
 @app.route('/campaign/<campaign_id>/download-html')
 def download_campaign_html(campaign_id):
