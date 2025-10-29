@@ -447,3 +447,18 @@ if __name__ == "__main__":
     result = generate_campaign_content("all-cash")
     print(json.dumps(result, indent=2))
 
+
+
+
+def get_segment_profile(segment_id):
+    """
+    Get the profile data for a specific segment
+    
+    Args:
+        segment_id: The segment ID to retrieve
+        
+    Returns:
+        dict: The segment profile data, or None if not found
+    """
+    return SEGMENT_PROFILES.get(segment_id)
+
