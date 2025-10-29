@@ -2833,6 +2833,29 @@ def segment_new():
 </body>
 </html>'''
 
+
+@app.route('/api/check-campaign-exists')
+def check_campaign_exists():
+    """Check if a campaign already exists for a given segment"""
+    segment_id = request.args.get('segment_id')
+    
+    if not segment_id:
+        return jsonify({"exists": False})
+    
+    campaigns = load_campaigns()
+    
+    # Find campaign with matching segment
+    existing = next((c for c in campaigns if c.get('segment') == segment_id), None)
+    
+    if existing:
+        return jsonify({
+            "exists": True,
+            "campaign_id": existing['id'],
+            "campaign_name": existing['name']
+        })
+    
+    return jsonify({"exists": False})
+
 @app.route('/api/generate-campaign', methods=['POST'])
 def api_generate_campaign():
     """API endpoint to generate campaign content using AI"""
@@ -3313,6 +3336,42 @@ def past_clients():
 def fix_segment_ids():
     """One-time migration to fix segment IDs in past_clients.json"""
     import json
+
+@app.route('/admin/debug-segments')
+def debug_segments():
+    """Debug route to see what's in past_clients.json"""
+    import json
+    import os
+    
+    output = "<h1>Debug: Past Client Segments</h1>"
+    
+    # Check if file exists
+    if os.path.exists('past_clients.json'):
+        output += "<p style='color: green;'>✓ past_clients.json EXISTS</p>"
+        
+        try:
+            with open('past_clients.json', 'r') as f:
+                segments = json.load(f)
+            
+            output += f"<p><strong>Total segments:</strong> {len(segments)}</p>"
+            output += "<table border='1' cellpadding='10'><tr><th>ID</th><th>Name</th><th>Description</th><th>Formula</th><th>Count</th></tr>"
+            
+            for seg in segments:
+                output += f"<tr><td>{seg.get('id', 'NO ID')}</td><td>{seg.get('name', 'NO NAME')}</td><td>{seg.get('description', 'NO DESC')}</td><td>{seg.get('formula', 'NO FORMULA')}</td><td>{seg.get('count', 0)}</td></tr>"
+            
+            output += "</table>"
+            
+            output += "<h2>Raw JSON:</h2><pre>" + json.dumps(segments, indent=2) + "</pre>"
+            
+        except Exception as e:
+            output += f"<p style='color: red;'>ERROR reading file: {str(e)}</p>"
+    else:
+        output += "<p style='color: red;'>✗ past_clients.json DOES NOT EXIST</p>"
+    
+    output += "<br><a href='/audiences/past-clients'>← Back to Past Clients</a>"
+    
+    return output
+
     import uuid
     
     try:
@@ -3435,7 +3494,14 @@ def create_past_client_segment():
         with open('past_clients.json', 'w') as f:
             json.dump(segments, f, indent=2)
         
-        return f'<script>alert("Segment created successfully! Count: {new_segment["count"]}"); window.location.href="/audiences/past-clients";</script>'
+        # Ask user if they want to generate a campaign
+        return f'''<script>
+            if (confirm("Segment created successfully! Count: {new_segment["count"]}\\n\\nWould you like to generate a campaign for this segment now?")) {{
+                window.location.href="/campaign/new?segment={new_segment["id"]}";
+            }} else {{
+                window.location.href="/audiences/past-clients";
+            }}
+        </script>'''
     
     # GET request - show creation form
     files = list_files_in_spaces()
