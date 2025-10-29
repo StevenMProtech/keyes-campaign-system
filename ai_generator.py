@@ -7,7 +7,10 @@ from openai import OpenAI
 import json
 import os
 
-client = OpenAI()
+# Initialize OpenAI client with explicit API key
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY")
+)
 
 # All 25 Harry Dry Principles
 HARRY_DRY_PRINCIPLES = """
