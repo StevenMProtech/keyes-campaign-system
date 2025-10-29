@@ -361,6 +361,7 @@ def index():
                         <option value="current">Current Email Template</option>
                         {campaign_options}
                     </select>
+                    <a href="/template/edit" style="padding: 8px 16px; background: #fcbfa7; color: #004237; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">Edit Template</a>
                 </div>
                 <div class="zoom-controls">
                     <button class="zoom-btn" onclick="zoomOut()">−</button>
@@ -557,6 +558,159 @@ def submit_form():
         let zoomLevel = 100;
         function updateZoom() {
             document.getElementById('content').style.transform = `scale(${zoomLevel / 100})`;
+
+@app.route('/template/edit', methods=['GET', 'POST'])
+def edit_template():
+    """Edit the email template HTML"""
+    if request.method == 'POST':
+        # Save the template
+        new_html = request.form.get('html_content', '')
+        
+        with open('email_template.html', 'w') as f:
+            f.write(new_html)
+        
+        return '<script>alert("Template saved successfully!"); window.location.href="/template/edit";</script>'
+    
+    # Load current template
+    try:
+        with open('email_template.html', 'r') as f:
+            current_html = f.read()
+    except FileNotFoundError:
+        current_html = "<!-- No template found -->"
+    
+    # Escape for textarea
+    import html
+    escaped_html = html.escape(current_html)
+    
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Email Template</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f7f3e5;
+            padding: 40px 20px;
+        }}
+        .container {{ max-width: 1200px; margin: 0 auto; }}
+        .header {{
+            background: linear-gradient(135deg, #004237 0%, #003329 100%);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }}
+        .editor-card {{
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }}
+        textarea {{
+            width: 100%;
+            min-height: 500px;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+        }}
+        textarea:focus {{
+            outline: none;
+            border-color: #004237;
+        }}
+        .btn-group {{
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }}
+        .btn {{
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }}
+        .btn-save {{
+            background: #fcbfa7;
+            color: #004237;
+        }}
+        .btn-save:hover {{
+            background: #fda67a;
+        }}
+        .btn-download {{
+            background: #004237;
+            color: white;
+        }}
+        .btn-download:hover {{
+            background: #003329;
+        }}
+        .btn-cancel {{
+            background: #e0e0e0;
+            color: #333;
+        }}
+        .btn-cancel:hover {{
+            background: #d0d0d0;
+        }}
+        .info {{
+            background: #f0f8ff;
+            border-left: 4px solid #004237;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" style="color: white; text-decoration: none; font-size: 24px; opacity: 0.8; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">←</a>
+            <h1>Email Template Editor</h1>
+            <p>Edit the HTML code for your email template</p>
+        </div>
+        
+        <div class="editor-card">
+            <div class="info">
+                <strong>Note:</strong> This is the master email template (email_template.html). Changes here will affect the preview on the homepage.
+            </div>
+            
+            <form method="POST" id="templateForm">
+                <textarea name="html_content" id="htmlContent">{escaped_html}</textarea>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-save">Save Template</button>
+                    <button type="button" class="btn btn-download" onclick="downloadHTML()">Download HTML</button>
+                    <a href="/" class="btn btn-cancel">Back to Dashboard</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function downloadHTML() {{
+            const htmlContent = document.getElementById('htmlContent').value;
+            const blob = new Blob([htmlContent], {{ type: 'text/html' }});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'email_template.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }}
+    </script>
+</body>
+</html>
+"""
+
             document.getElementById('zoomLevel').textContent = zoomLevel + '%';
         }
         function zoomIn() {
@@ -3155,7 +3309,6 @@ def past_clients():
 """
 
 
-@app.route('/audiences/past-clients/<segment_id>/edit', methods=['GET', 'POST'])
 @app.route('/audiences/past-clients/new', methods=['GET', 'POST'])
 def create_past_client_segment():
     """Create a new past client segment"""
@@ -3424,6 +3577,7 @@ def create_past_client_segment():
 </html>
 """
 
+@app.route('/audiences/past-clients/<segment_id>/edit', methods=['GET', 'POST'])
 def edit_past_client_segment(segment_id):
     """Edit a past client segment formula"""
     import json
@@ -3701,9 +3855,9 @@ def edit_past_client_segment(segment_id):
             <p style="margin-bottom: 16px; color: #666;">Select which files to use for this segment. The count will be recalculated when you save.</p>
             
             <form method="POST">
-                <input type="hidden" name="name" value="{segment['name']}">
-                <input type="hidden" name="description" value="{segment['description']}">
-                <input type="hidden" name="formula" value="{segment['formula']}">
+                <input type="hidden" name="name" value="{segment['name'].replace('"', '&quot;')}">
+                <input type="hidden" name="description" value="{segment['description'].replace('"', '&quot;')}">
+                <input type="hidden" name="formula" value="{segment['formula'].replace('"', '&quot;')}">
                 
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
                     <thead>
